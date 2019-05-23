@@ -13,7 +13,7 @@ import javax.swing.ImageIcon;
 
 public class LoginWindow {
 
-	private JFrame frmLogin;
+	public JFrame frmLogin;
 	private JTextField textFieldUsername;
 	private JPasswordField passwordField;
 
@@ -51,41 +51,44 @@ public class LoginWindow {
 	 */
 	private void initialize() {
 		frmLogin = new JFrame();
+		frmLogin.setResizable(false);
 		frmLogin.setTitle("Login");
-		frmLogin.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\date.png"));
+		frmLogin.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\login.png"));
 		frmLogin.setBounds(100, 100, 430, 179);
 		frmLogin.setLocationRelativeTo(null);
-		frmLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmLogin.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmLogin.getContentPane().setLayout(null);
+		
+		JLabel lblLoginIcon = new JLabel("");
+		lblLoginIcon.setIcon(new ImageIcon("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\user.png"));
+		lblLoginIcon.setBounds(21, 11, 80, 80);
+		frmLogin.getContentPane().add(lblLoginIcon);
 		
 		JLabel lblUsername = new JLabel("Username:");
 		lblUsername.setBounds(126, 32, 68, 14);
 		frmLogin.getContentPane().add(lblUsername);
 		
-		JLabel lblPassword = new JLabel("Password:");
-		lblPassword.setBounds(126, 57, 68, 14);
-		frmLogin.getContentPane().add(lblPassword);
-		
 		textFieldUsername = new JTextField();
+		textFieldUsername.setToolTipText("Enter your username");
 		textFieldUsername.setBounds(191, 26, 191, 20);
 		frmLogin.getContentPane().add(textFieldUsername);
 		textFieldUsername.setColumns(10);
 		
+		JLabel lblPassword = new JLabel("Password:");
+		lblPassword.setBounds(126, 57, 68, 14);
+		frmLogin.getContentPane().add(lblPassword);
+		
 		passwordField = new JPasswordField();
+		passwordField.setToolTipText("Enter your password");
 		passwordField.setBounds(191, 51, 191, 20);
 		frmLogin.getContentPane().add(passwordField);
 		
 		JButton btnLogin = new JButton("Login");
-		btnLogin.setBounds(293, 95, 89, 23);
+		btnLogin.setBounds(194, 95, 89, 23);
 		frmLogin.getContentPane().add(btnLogin);
 		
 		JButton btnCancel = new JButton("Cancel");
-		btnCancel.setBounds(191, 95, 89, 23);
+		btnCancel.setBounds(293, 95, 89, 23);
 		frmLogin.getContentPane().add(btnCancel);
-		
-		JLabel lblLoginIcon = new JLabel("");
-		lblLoginIcon.setIcon(new ImageIcon("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\examination.png"));
-		lblLoginIcon.setBounds(21, 11, 89, 80);
-		frmLogin.getContentPane().add(lblLoginIcon);
 	}
 }

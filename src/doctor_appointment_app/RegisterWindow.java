@@ -13,10 +13,10 @@ import java.awt.Toolkit;
 
 public class RegisterWindow {
 
-	private JFrame frmRegister;
+	public JFrame frmRegister;
 	private JTextField textFieldUsername;
 	private JPasswordField passwordField;
-	private JPasswordField passwordField_1;
+	private JPasswordField passwordFieldRepeat;
 
 	/**
 	 * Launch the application.
@@ -52,18 +52,25 @@ public class RegisterWindow {
 	 */
 	private void initialize() {
 		frmRegister = new JFrame();
-		frmRegister.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\date.png"));
+		frmRegister.setResizable(false);
+		frmRegister.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\register.png"));
 		frmRegister.setTitle("Register");
 		frmRegister.setBounds(100, 100, 472, 201);
 		frmRegister.setLocationRelativeTo(null);
-		frmRegister.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmRegister.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmRegister.getContentPane().setLayout(null);
+		
+		JLabel lblRegisterIcon = new JLabel("");
+		lblRegisterIcon.setIcon(new ImageIcon("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\user.png"));
+		lblRegisterIcon.setBounds(21, 23, 80, 80);
+		frmRegister.getContentPane().add(lblRegisterIcon);
 		
 		JLabel lblUsername = new JLabel("Username:");
 		lblUsername.setBounds(164, 31, 68, 14);
 		frmRegister.getContentPane().add(lblUsername);
 		
 		textFieldUsername = new JTextField();
+		textFieldUsername.setToolTipText("Enter a username");
 		textFieldUsername.setColumns(10);
 		textFieldUsername.setBounds(229, 25, 191, 20);
 		frmRegister.getContentPane().add(textFieldUsername);
@@ -73,29 +80,26 @@ public class RegisterWindow {
 		frmRegister.getContentPane().add(lblPassword);
 		
 		passwordField = new JPasswordField();
+		passwordField.setToolTipText("Enter a password");
 		passwordField.setBounds(229, 50, 191, 20);
 		frmRegister.getContentPane().add(passwordField);
 		
-		JButton btnCancel = new JButton("Cancel");
-		btnCancel.setBounds(229, 117, 89, 23);
-		frmRegister.getContentPane().add(btnCancel);
+		JLabel lblRepeatPassword = new JLabel("Repeat password:");
+		lblRepeatPassword.setBounds(126, 81, 89, 14);
+		frmRegister.getContentPane().add(lblRepeatPassword);
+		
+		passwordFieldRepeat = new JPasswordField();
+		passwordFieldRepeat.setToolTipText("Reenter the password");
+		passwordFieldRepeat.setBounds(229, 75, 191, 20);
+		frmRegister.getContentPane().add(passwordFieldRepeat);
 		
 		JButton btnRegister = new JButton("Register");
-		btnRegister.setBounds(331, 117, 89, 23);
+		btnRegister.setBounds(229, 117, 89, 23);
 		frmRegister.getContentPane().add(btnRegister);
 		
-		passwordField_1 = new JPasswordField();
-		passwordField_1.setBounds(229, 75, 191, 20);
-		frmRegister.getContentPane().add(passwordField_1);
-		
-		JLabel lblRepeat = new JLabel("Repeat password:");
-		lblRepeat.setBounds(126, 81, 89, 14);
-		frmRegister.getContentPane().add(lblRepeat);
-		
-		JLabel label = new JLabel("");
-		label.setIcon(new ImageIcon("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\examination.png"));
-		label.setBounds(21, 23, 89, 80);
-		frmRegister.getContentPane().add(label);
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.setBounds(331, 117, 89, 23);
+		frmRegister.getContentPane().add(btnCancel);
 	}
 
 }
