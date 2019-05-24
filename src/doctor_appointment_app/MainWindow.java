@@ -31,7 +31,7 @@ import java.awt.event.MouseEvent;
 
 public class MainWindow {
 
-	private JFrame frmMain;
+	public JFrame frmMain;
 	private JTable tableAppointments;
 	private JTable tablePatients;
 	private JTable tableDoctors;
@@ -80,7 +80,7 @@ public class MainWindow {
 		frmMain = new JFrame();
 		frmMain.setResizable(false);
 		frmMain.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\appointmentManager.png"));
-		frmMain.setTitle("Doctor Appointment Manager");
+		frmMain.setTitle("Home - Doctor Appointment Manager");
 		frmMain.setBounds(100, 100, 774, 976);
 		frmMain.setLocationRelativeTo(null);
 		frmMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

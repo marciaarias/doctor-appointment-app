@@ -53,18 +53,24 @@ public class DoctorAppointmentApp {
 		frmDoctorAppointmentManager = new JFrame();
 		frmDoctorAppointmentManager.setResizable(false);
 		frmDoctorAppointmentManager.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\appointmentManager.png"));
-		frmDoctorAppointmentManager.setTitle("Doctor Appointment Manager");
+		frmDoctorAppointmentManager.setTitle("Welcome - Doctor Appointment Manager");
 		frmDoctorAppointmentManager.setBounds(100, 100, 572, 507);
 		frmDoctorAppointmentManager.setLocationRelativeTo(null);
 		frmDoctorAppointmentManager.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		//Implement label "Login".
 		
 		JLabel lblLogin = new JLabel("<HTML><U>Login</HTML></U>");
 		lblLogin.setToolTipText("Login existing user");
 		lblLogin.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				
+				frmDoctorAppointmentManager.dispose();
+				
 				LoginWindow loginWindow = new LoginWindow();
 				loginWindow.frmLogin.setVisible(true);
+				
 			}
 		});
 		lblLogin.setBounds(200, 423, 46, 20);
@@ -76,13 +82,19 @@ public class DoctorAppointmentApp {
 		lblSlash.setBounds(245, 423, 6, 20);
 		lblSlash.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		
+		//Implement label "Register".
+		
 		JLabel lblRegister = new JLabel("<HTML><U>Register</HTML></U>");
 		lblRegister.setToolTipText("Register new user");
 		lblRegister.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				
+				frmDoctorAppointmentManager.dispose();
+				
 				RegisterWindow registerWindow = new RegisterWindow();
 				registerWindow.frmRegister.setVisible(true);
+				
 			}
 		});
 		lblRegister.setBounds(256, 423, 65, 20);

@@ -54,7 +54,7 @@ public class RegisterWindow {
 		frmRegister = new JFrame();
 		frmRegister.setResizable(false);
 		frmRegister.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\register.png"));
-		frmRegister.setTitle("Register");
+		frmRegister.setTitle("Register - Doctor Appointment Manager");
 		frmRegister.setBounds(100, 100, 472, 201);
 		frmRegister.setLocationRelativeTo(null);
 		frmRegister.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -70,7 +70,7 @@ public class RegisterWindow {
 		frmRegister.getContentPane().add(lblUsername);
 		
 		textFieldUsername = new JTextField();
-		textFieldUsername.setToolTipText("Enter a username");
+		textFieldUsername.setToolTipText("");
 		textFieldUsername.setColumns(10);
 		textFieldUsername.setBounds(229, 25, 191, 20);
 		frmRegister.getContentPane().add(textFieldUsername);
@@ -80,7 +80,7 @@ public class RegisterWindow {
 		frmRegister.getContentPane().add(lblPassword);
 		
 		passwordField = new JPasswordField();
-		passwordField.setToolTipText("Enter a password");
+		passwordField.setToolTipText("");
 		passwordField.setBounds(229, 50, 191, 20);
 		frmRegister.getContentPane().add(passwordField);
 		
@@ -89,7 +89,7 @@ public class RegisterWindow {
 		frmRegister.getContentPane().add(lblRepeatPassword);
 		
 		passwordFieldRepeat = new JPasswordField();
-		passwordFieldRepeat.setToolTipText("Reenter the password");
+		passwordFieldRepeat.setToolTipText("");
 		passwordFieldRepeat.setBounds(229, 75, 191, 20);
 		frmRegister.getContentPane().add(passwordFieldRepeat);
 		
