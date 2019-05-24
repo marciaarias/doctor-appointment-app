@@ -40,20 +40,42 @@ public class DataModule {
 	  
 	}
 	
+	//Return content of a column in a table.
+	
 	public String getColumnAsString(Connection connection, String query, String columnName) {
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(query);
 			ResultSet resultSet = statement.executeQuery();
-			resultSet.next();
 			
-			return resultSet.getString(columnName);
+			if(resultSet.next()) {
+				return resultSet.getString(columnName);
+				
+			} else {
+				
+				return null;
+			}
+
 			
 		} catch(Exception exception) {
 			exception.printStackTrace();
 		}
 		
 		return null;
+
+	}
+	
+	//Update data in a table.
+	
+	public void updateData(Connection connection, String query) {
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(query);
+			statement.executeUpdate(query);
+			
+		} catch(Exception exception) {
+			exception.printStackTrace();
+		}
 
 	}
 

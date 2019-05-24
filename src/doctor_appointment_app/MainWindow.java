@@ -1,33 +1,32 @@
 package doctor_appointment_app;
 
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
-import java.awt.Toolkit;
-import java.util.Properties;
-
 import javax.swing.JLabel;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
 import javax.swing.JComboBox;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JSeparator;
 import javax.swing.UIManager;
-
-import org.jdatepicker.impl.JDatePanelImpl;
-import org.jdatepicker.impl.JDatePickerImpl;
-import org.jdatepicker.impl.UtilDateModel;
-
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.JFormattedTextField;
+
+import java.awt.Toolkit;
+import java.awt.EventQueue;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import java.util.Properties;
+
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 
 public class MainWindow {
 

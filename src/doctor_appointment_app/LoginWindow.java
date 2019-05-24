@@ -1,13 +1,5 @@
 package doctor_appointment_app;
 
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.Color;
-import java.awt.event.ActionListener;
-import java.awt.Toolkit;
-
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.JLabel;
@@ -16,6 +8,14 @@ import javax.swing.Timer;
 import javax.swing.JPasswordField;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
+
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.Color;
+import java.awt.event.ActionListener;
+import java.awt.Toolkit;
 
 import java.sql.Connection;
 
@@ -26,6 +26,7 @@ public class LoginWindow {
 	private JPasswordField passwordField;
 	private JLabel lblWarning;
 	private Timer timer;
+	private JButton btnLogin;
 	
 	//Implement inner class "labelBlink".
 	
@@ -103,6 +104,7 @@ public class LoginWindow {
 				
 			}
 		});
+		
 		frmLogin.setResizable(false);
 		frmLogin.setTitle("Login - Doctor Appointment Manager");
 		frmLogin.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\login.png"));
@@ -135,9 +137,16 @@ public class LoginWindow {
 		passwordField.setBounds(191, 51, 191, 20);
 		frmLogin.getContentPane().add(passwordField);
 		
+		lblWarning = new JLabel("Incorrect username or password.");
+		lblWarning.setForeground(Color.RED);
+		lblWarning.setIcon(new ImageIcon("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\warning.png"));
+		lblWarning.setBounds(191, 72, 191, 14);
+		lblWarning.setVisible(false);
+		frmLogin.getContentPane().add(lblWarning);
+		
 		//Implement button "Login".
 		
-		JButton btnLogin = new JButton("Login");
+		btnLogin = new JButton("Login");
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -145,17 +154,12 @@ public class LoginWindow {
 				
 				try {
 					Connection connection = data.getConnection();
+									
+					String hashedPassword = data.getColumnAsString(connection, "SELECT SHA1('" + String.valueOf(passwordField.getPassword()) + "') AS hashedPassword", "hashedPassword");
+					String validateCredentials = "SELECT username FROM log_in WHERE username = '" + textFieldUsername.getText() +"' AND password = '" + hashedPassword + "'";
+					validateCredentials = data.getColumnAsString(connection, validateCredentials, "username");
 					
-					String queryUsername = "SELECT username FROM log_in";
-					queryUsername = data.getColumnAsString(connection, queryUsername, "username");
-					
-					String queryPassword = "SELECT password FROM log_in";
-					queryPassword = data.getColumnAsString(connection, queryPassword, "password");
-					
-					String queryPasswordField = "SELECT SHA1('" + String.valueOf(passwordField.getPassword()) + "') AS tempPassword";
-					queryPasswordField = data.getColumnAsString(connection, queryPasswordField, "tempPassword");
-					
-					if(textFieldUsername.getText().equals(queryUsername) && queryPasswordField.equals(queryPassword)) {
+					if(validateCredentials != null) {
 						frmLogin.dispose();
 						
 						MainWindow mainWindow = new MainWindow();
@@ -195,12 +199,5 @@ public class LoginWindow {
 		});
 		btnCancel.setBounds(293, 95, 89, 23);
 		frmLogin.getContentPane().add(btnCancel);
-		
-		lblWarning = new JLabel("Incorrect username or password.");
-		lblWarning.setForeground(Color.RED);
-		lblWarning.setIcon(new ImageIcon("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\warning.png"));
-		lblWarning.setBounds(191, 72, 191, 14);
-		lblWarning.setVisible(false);
-		frmLogin.getContentPane().add(lblWarning);
 	}
 }
