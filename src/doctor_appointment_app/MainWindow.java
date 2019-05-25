@@ -731,6 +731,13 @@ public class MainWindow {
 						    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 							utilities.renameColumns(tableDoctors, columnNames);
 							
+							//Refresh "comboBoxSelectDoctorTop".
+							
+							comboBoxSelectDoctorTop.removeAllItems();
+							String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name "
+														+ "FROM doctors";
+							data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
+							
 						}
 						
 					} catch (Exception exception) {
@@ -813,6 +820,13 @@ public class MainWindow {
 								    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 									utilities.renameColumns(tableDoctors, columnNames);
 									
+									//Refresh "comboBoxSelectDoctorTop".
+									
+									comboBoxSelectDoctorTop.removeAllItems();
+									String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name "
+																+ "FROM doctors";
+									data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
+									
 								}
 							
 							} catch (Exception exception) {
@@ -874,6 +888,13 @@ public class MainWindow {
 							
 						    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 							utilities.renameColumns(tableDoctors, columnNames);
+							
+							//Refresh "comboBoxSelectDoctorTop".
+							
+							comboBoxSelectDoctorTop.removeAllItems();
+							String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name "
+														+ "FROM doctors";
+							data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
 						
 						} catch (Exception exception) {
 							exception.printStackTrace();
