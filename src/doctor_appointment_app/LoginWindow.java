@@ -33,7 +33,7 @@ public class LoginWindow {
 		return user;
 	}
 	
-	//Implement inner class "labelBlink".
+	//Implement inner class 'labelBlink'.
 	
 	class labelBlink implements ActionListener {
 
@@ -46,6 +46,7 @@ public class LoginWindow {
 	    
 		@Override
 	    public void actionPerformed(ActionEvent e) {
+			
 			if(count == 4) {
 				timer.stop();
 				count = 0;
@@ -59,6 +60,7 @@ public class LoginWindow {
 				
 	        count++;
 	    }  	
+		
 	}
 
 	/**
@@ -160,8 +162,14 @@ public class LoginWindow {
 				try {
 					Connection connection = data.getConnection();
 									
-					String hashedPassword = data.getColumnAsString(connection, "SELECT SHA1('" + String.valueOf(passwordField.getPassword()) + "') AS hashedPassword", "hashedPassword");
-					String validateCredentials = "SELECT username FROM log_in WHERE username = '" + textFieldUsername.getText() +"' AND password = '" + hashedPassword + "'";
+					String hashedPassword = data.getColumnAsString(connection, 
+																	"SELECT SHA1('" + String.valueOf(passwordField.getPassword()) + "') AS hashedPassword", 
+																	"hashedPassword"
+																	);
+					String validateCredentials = "SELECT username "
+													+ "FROM log_in "
+													+ "WHERE username = '" + textFieldUsername.getText() 
+													+"' AND password = '" + hashedPassword + "'";
 					validateCredentials = data.getColumnAsString(connection, validateCredentials, "username");
 					
 					if(validateCredentials != null) {

@@ -33,12 +33,9 @@ import java.awt.event.WindowEvent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
-import java.util.Date;
 import java.util.Properties;
 
 import org.jdatepicker.impl.JDatePanelImpl;
@@ -97,16 +94,13 @@ public class MainWindow {
 	private void initialize() {
 		frmMain = new JFrame();
 		
-		//Override windowClosing event.
+		//Override "windowClosing" event.
 		
 		frmMain.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				
-				int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?", "Confirm Quit", JOptionPane.YES_NO_OPTION);
-			    if(clickedOption == JOptionPane.YES_OPTION){
-			    	frmMain.dispose();
-			    }
+				utilities.confirmQuitDialog(frmMain);
 				
 			}
 		});
@@ -133,12 +127,11 @@ public class MainWindow {
 				
 				int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "Confirm Logout", JOptionPane.YES_NO_OPTION);
 				
-			    if(clickedOption == JOptionPane.YES_OPTION){
+			    if(clickedOption == JOptionPane.YES_OPTION) {
 			    	frmMain.dispose();
 			    	
 					DoctorAppointmentApp doctorAppointmentApp = new DoctorAppointmentApp();
 					doctorAppointmentApp.frmDoctorAppointmentManager.setVisible(true);
-					
 			    }
 				
 			}
@@ -164,7 +157,7 @@ public class MainWindow {
 		comboBoxSelectDoctorTop.setBounds(347, 62, 179, 22);
 		frmMain.getContentPane().add(comboBoxSelectDoctorTop);
 		
-		//Fill comboBoxSelectDoctorTop with values from database.
+		//Fill "comboBoxSelectDoctorTop" with data from database.
 		
 		{
 			DataModule data = new DataModule();
@@ -172,14 +165,9 @@ public class MainWindow {
 			try {
 				Connection connection = data.getConnection();
 			
-				String query = "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM doctors";
-				PreparedStatement statement = connection.prepareStatement(query);
-				ResultSet resultSet = statement.executeQuery();
-			
-				while(resultSet.next()) {
-					comboBoxSelectDoctorTop.addItem(resultSet.getString("full_name"));  
-				
-				}
+				String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name "
+									+ "FROM doctors";
+				data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
 			
 			} catch (Exception exception) {
 				exception.printStackTrace();
@@ -217,9 +205,6 @@ public class MainWindow {
 		JButton btnShowAppointments = new JButton("Show Appointments");
 		btnShowAppointments.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
-				
 			}
 		});
 		btnShowAppointments.setBounds(552, 10, 127, 23);
@@ -472,6 +457,8 @@ public class MainWindow {
 		lblViewDoctors.setBounds(10, 16, 330, 18);
 		panelDoctors.add(lblViewDoctors);
 		
+		//Implement button "Show Doctors".
+		
 		JButton btnShowDoctors = new JButton("Show Doctors");
 		btnShowDoctors.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -481,8 +468,17 @@ public class MainWindow {
 				try {
 					Connection connection = data.getConnection();
 					
-					String query = "SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors";
-					data.selectData(connection, query, tableDoctors);
+					String querySelect = "SELECT "
+											+ "id, "
+											+ "title, "
+											+ "first_name, "
+											+ "last_name, "
+											+ "DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, "
+											+ "gender, "
+											+ "phone_number, "
+											+ "email "
+										+ "FROM doctors";
+					data.selectData(connection, querySelect, tableDoctors);
 					
 					String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 					utilities.renameColumns(tableDoctors, columnNames);
@@ -528,7 +524,7 @@ public class MainWindow {
 		comboBoxDoctorTitle.setBounds(20, 303, 189, 22);
 		panelDoctors.add(comboBoxDoctorTitle);
 		
-		//Fill comboBoxDoctorTitle with values from database.
+		//Fill "comboBoxDoctorTitle" with data from database.
 		
 		{
 			DataModule data = new DataModule();
@@ -536,14 +532,9 @@ public class MainWindow {
 			try {
 				Connection connection = data.getConnection();
 			
-				String query = "SELECT title FROM titles";
-				PreparedStatement statement = connection.prepareStatement(query);
-				ResultSet resultSet = statement.executeQuery();
-			
-				while(resultSet.next()) {
-					comboBoxDoctorTitle.addItem(resultSet.getString("title"));  
-				
-				}
+				String querySelect = "SELECT title "
+									+ "FROM titles";
+				data.fillComboBox(connection, querySelect, comboBoxDoctorTitle, "title");
 			
 			} catch (Exception exception) {
 				exception.printStackTrace();
@@ -594,7 +585,7 @@ public class MainWindow {
 		comboBoxDoctorGender.setBounds(363, 394, 189, 22);
 		panelDoctors.add(comboBoxDoctorGender);
 		
-		//Fill comboBoxDoctorGender with values from database.
+		//Fill "comboBoxDoctorGender" with data from database.
 		
 		{
 			DataModule data = new DataModule();
@@ -602,14 +593,9 @@ public class MainWindow {
 			try {
 				Connection connection = data.getConnection();
 			
-				String query = "SELECT gender FROM genders";
-				PreparedStatement statement = connection.prepareStatement(query);
-				ResultSet resultSet = statement.executeQuery();
-			
-				while(resultSet.next()) {
-					comboBoxDoctorGender.addItem(resultSet.getString("gender"));  
-				
-				}
+				String querySelect = "SELECT gender "
+									+ "FROM genders";
+				data.fillComboBox(connection, querySelect, comboBoxDoctorGender, "gender");
 			
 			} catch (Exception exception) {
 				exception.printStackTrace();
@@ -622,16 +608,16 @@ public class MainWindow {
 		
 		//Create mask for field "formattedTextFieldDoctorPhone".
 		
-		try {
-			MaskFormatter mask = new MaskFormatter("(###) ###-####");
-			formattedTextFieldDoctorPhone = new JFormattedTextField(mask);
-			formattedTextFieldDoctorPhone.setToolTipText("Enter doctor's phone number");
-			formattedTextFieldDoctorPhone.setBounds(21, 444, 189, 20);
-			panelDoctors.add(formattedTextFieldDoctorPhone);
+			try {
+				MaskFormatter mask = new MaskFormatter("(###) ###-####");
+				formattedTextFieldDoctorPhone = new JFormattedTextField(mask);
+				formattedTextFieldDoctorPhone.setToolTipText("Enter doctor's phone number");
+				formattedTextFieldDoctorPhone.setBounds(21, 444, 189, 20);
+				panelDoctors.add(formattedTextFieldDoctorPhone);
 			
-		} catch (ParseException exception) {
-			exception.printStackTrace();
-		}
+			} catch (ParseException exception) {
+				exception.printStackTrace();
+			}
 		
 		JLabel lblDoctorEmail = new JLabel("Email:");
 		lblDoctorEmail.setBounds(363, 427, 46, 14);
@@ -648,7 +634,7 @@ public class MainWindow {
 		comboBoxDoctorEmail.setBounds(454, 442, 98, 22);
 		panelDoctors.add(comboBoxDoctorEmail);
 		
-		//Fill comboBoxDoctorEmail with values from database.
+		//Fill "comboBoxDoctorEmail" with data from database.
 		
 		{
 			DataModule data = new DataModule();
@@ -656,29 +642,29 @@ public class MainWindow {
 			try {
 				Connection connection = data.getConnection();
 			
-				String query = "SELECT email_provider FROM email_providers";
-				PreparedStatement statement = connection.prepareStatement(query);
-				ResultSet resultSet = statement.executeQuery();
-			
-				while(resultSet.next()) {
-					comboBoxDoctorEmail.addItem(resultSet.getString("email_provider"));  
-				
-				}
+				String querySelect = "SELECT email_provider "
+									+ "FROM email_providers";
+				data.fillComboBox(connection, querySelect, comboBoxDoctorEmail, "email_provider");
 			
 			} catch (Exception exception) {
 				exception.printStackTrace();
 			}
 		}
 		
-		//Implement button 'Add'.
+		//Implement button "Add".
 		
 		JButton btnAddDoctor = new JButton("Add");
 		btnAddDoctor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if(textFieldDoctorFirstName.getText().isEmpty() || textFieldDoctorLastName.getText().isEmpty() 
-						|| doctorDOBPicker.getJFormattedTextField().getText().isEmpty() || formattedTextFieldDoctorPhone.getText().length() < 7 
+				//check if fields are empty.
+				
+				if(textFieldDoctorFirstName.getText().isEmpty() 
+						|| textFieldDoctorLastName.getText().isEmpty() 
+						|| doctorDOBPicker.getJFormattedTextField().getText().isEmpty() 
+						|| formattedTextFieldDoctorPhone.getText().length() < 7 
 						|| textFieldDoctorEmail.getText().isEmpty()) {
+					
 					JOptionPane.showMessageDialog(new JFrame(), "Fields cannot be left empty.", "Error", JOptionPane.ERROR_MESSAGE);
 					
 				} else {
@@ -690,36 +676,49 @@ public class MainWindow {
 						//Check if email is unique.
 						
 						String email = textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString());
-						String queryEmail = "SELECT email FROM doctors WHERE email = '" + email + "'";
+						String queryEmail = "SELECT email "
+											+ "FROM doctors "
+											+ "WHERE email = '" + email + "'";
 						queryEmail = data.getColumnAsString(connection, queryEmail, "email");
 					    
 						if(queryEmail != null) {
 							JOptionPane.showMessageDialog(null, "Duplicate entry: email must be unique.", "Error", JOptionPane.ERROR_MESSAGE);
 							
 						} else {
-							String stringDate_of_birth = doctorDOBPicker.getJFormattedTextField().getText();
-							SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");  
-							Date dateDate_of_birth = simpleDateFormat.parse(stringDate_of_birth);  
 							
-							simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-							stringDate_of_birth = simpleDateFormat.format(dateDate_of_birth);
+							//Retrieve date field as "yyyy-MM-dd".
 							
-							String query = "INSERT INTO doctors (title, first_name, last_name, date_of_birth, gender, phone_number, email) "
-											+ "VALUES('" 
-											+ comboBoxDoctorTitle.getSelectedItem().toString() + "', '" 
-											+ textFieldDoctorFirstName.getText() + "', '" 
-											+ textFieldDoctorLastName.getText() + "', '"
-											+ stringDate_of_birth + "', '"
-											+ comboBoxDoctorGender.getSelectedItem().toString() + "', '"
-											+ formattedTextFieldDoctorPhone.getText() + "', '"
-											+ textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString()) + "')";
+							String dateOfBirth = doctorDOBPicker.getJFormattedTextField().getText();
+							dateOfBirth = utilities.retrieveFormattedDate(dateOfBirth);
 							
-							PreparedStatement statement = connection.prepareStatement(query);
-						    statement.executeUpdate(query);
+							//Execute query.
+							
+							String queryInsert = "INSERT INTO doctors (title, first_name, last_name, date_of_birth, gender, phone_number, email) "
+												+ "VALUES('" 
+													+ comboBoxDoctorTitle.getSelectedItem().toString() + "', '" 
+													+ textFieldDoctorFirstName.getText() + "', '" 
+													+ textFieldDoctorLastName.getText() + "', '"
+													+ dateOfBirth + "', '"
+													+ comboBoxDoctorGender.getSelectedItem().toString() + "', '"
+													+ formattedTextFieldDoctorPhone.getText() + "', '"
+													+ textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString()) 
+												+ "')";
+							
+							PreparedStatement statement = connection.prepareStatement(queryInsert);
+						    statement.executeUpdate(queryInsert);
 						    data.selectData(connection, 
-		    						"SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors", 
-		    						tableDoctors
-		    						);
+		    								"SELECT "
+		    										+ "id, "
+		    										+ "title, "
+		    										+ "first_name, "
+		    										+ "last_name, "
+		    										+ "DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, "
+		    										+ "gender, "
+		    										+ "phone_number, "
+		    										+ "email "
+		    									+ "FROM doctors", 
+		    								tableDoctors
+		    								);
 							
 						    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 							utilities.renameColumns(tableDoctors, columnNames);
@@ -745,6 +744,8 @@ public class MainWindow {
 				
 				int selectedRowIndex = tableDoctors.getSelectedRow();
 				
+				//Confirm row update.
+				
 				if(tableDoctors.isRowSelected(selectedRowIndex) == true) {
 				    int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to modify this row?", "Confirm Update", JOptionPane.YES_NO_OPTION);
 				    
@@ -758,33 +759,46 @@ public class MainWindow {
 								//Check if email is unique.
 								
 								String email = textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString());
-								String queryEmail = "SELECT email FROM doctors WHERE email = '" + email + "' AND id != " + (int)(model.getValueAt(selectedRowIndex, 0));
+								String queryEmail = "SELECT email "
+													+ "FROM doctors "
+													+ "WHERE email = '" + email + "' "
+														+ "AND id != " + (int)(model.getValueAt(selectedRowIndex, 0));
 								queryEmail = data.getColumnAsString(connection, queryEmail, "email");
 							    
 								if(queryEmail != null) {
 									JOptionPane.showMessageDialog(null, "Duplicate entry: email must be unique.", "Error", JOptionPane.ERROR_MESSAGE);
 									
 								} else {
-									String stringDate_of_birth = doctorDOBPicker.getJFormattedTextField().getText();
-									SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");  
-									Date dateDate_of_birth = simpleDateFormat.parse(stringDate_of_birth);  
 									
-									simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-									stringDate_of_birth = simpleDateFormat.format(dateDate_of_birth);
+									//Retrieve date field as "yyyy-MM-dd".
 									
-									String query = "UPDATE doctors SET title = '" + comboBoxDoctorTitle.getSelectedItem().toString() 
-													+ "' , first_name = '" + textFieldDoctorFirstName.getText() 
-													+ "' , last_name = '" + textFieldDoctorLastName.getText() 
-													+ "' , date_of_birth = '" + stringDate_of_birth
-													+ "' , gender = '" + comboBoxDoctorGender.getSelectedItem().toString()
-													+ "' , phone_number = '" + formattedTextFieldDoctorPhone.getText()
-													+ "' , email = '" + email
-													+ "' WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
+									String dateOfBirth = doctorDOBPicker.getJFormattedTextField().getText();
+									dateOfBirth = utilities.retrieveFormattedDate(dateOfBirth);
+									
+									//Execute query.
+									
+									String queryUpdate = "UPDATE doctors SET title = '" + comboBoxDoctorTitle.getSelectedItem().toString() 
+															+ "' , first_name = '" + textFieldDoctorFirstName.getText() 
+															+ "' , last_name = '" + textFieldDoctorLastName.getText() 
+															+ "' , date_of_birth = '" + dateOfBirth
+															+ "' , gender = '" + comboBoxDoctorGender.getSelectedItem().toString()
+															+ "' , phone_number = '" + formattedTextFieldDoctorPhone.getText()
+															+ "' , email = '" + email
+														+ "' WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
 								
-									PreparedStatement statement = connection.prepareStatement(query);
-								    statement.executeUpdate(query);
+									PreparedStatement statement = connection.prepareStatement(queryUpdate);
+								    statement.executeUpdate(queryUpdate);
 								    data.selectData(connection, 
-						    						"SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors", 
+						    						"SELECT "
+						    								+ "id, "
+						    								+ "title, "
+						    								+ "first_name, "
+						    								+ "last_name, "
+						    								+ "DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, "
+						    								+ "gender, "
+						    								+ "phone_number, "
+						    								+ "email "
+						    							+ "FROM doctors", 
 						    						tableDoctors
 						    						);
 									
@@ -817,6 +831,8 @@ public class MainWindow {
 				
 				int selectedRowIndex = tableDoctors.getSelectedRow();
 				
+				//Confirm row deletion.
+				
 				if(tableDoctors.isRowSelected(selectedRowIndex) == true) {
 				    int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this row?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
 				    
@@ -826,13 +842,25 @@ public class MainWindow {
 					
 						try {
 							Connection connection = data.getConnection();
+							
+							//Execute query.
 						
-							String query = "DELETE FROM doctors WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
+							String queryDelete = "DELETE FROM doctors "
+												+ "WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
 						
-							PreparedStatement statement = connection.prepareStatement(query);
-						    statement.executeUpdate(query);
+							PreparedStatement statement = connection.prepareStatement(queryDelete);
+						    statement.executeUpdate(queryDelete);
 						    data.selectData(connection, 
-						    				"SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors", 
+						    				"SELECT "
+						    						+ "id, "
+						    						+ "title, "
+						    						+ "first_name, "
+						    						+ "last_name, "
+						    						+ "DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, "
+						    						+ "gender, "
+						    						+ "phone_number, "
+						    						+ "email "
+						    					+ "FROM doctors", 
 						    				tableDoctors
 						    				);
 							
@@ -858,7 +886,7 @@ public class MainWindow {
 		scrollPaneDoctors.setBounds(10, 40, 669, 201);
 		panelDoctors.add(scrollPaneDoctors);
 		
-		//Implement MouseClicked on 'tableDoctors'.
+		//Fill "tableDoctors" with "mouseClicked" event.
 		
 		tableDoctors = new JTable();
 		tableDoctors.addMouseListener(new MouseAdapter() {
@@ -869,7 +897,9 @@ public class MainWindow {
 				int selectedRowIndex = tableDoctors.getSelectedRow();
 				
 				comboBoxDoctorTitle.setSelectedItem(model.getValueAt(selectedRowIndex, 1).toString());
+				
 				textFieldDoctorFirstName.setText(model.getValueAt(selectedRowIndex, 2).toString());
+				
 				textFieldDoctorLastName.setText(model.getValueAt(selectedRowIndex, 3).toString());
 				
 				String dateOfBirth = model.getValueAt(selectedRowIndex, 4).toString();
@@ -884,11 +914,11 @@ public class MainWindow {
 				String phoneNumber = model.getValueAt(selectedRowIndex, 6).toString().replaceAll("-", "");
 				formattedTextFieldDoctorPhone.setText(phoneNumber);
 				
-				String email = model.getValueAt(selectedRowIndex, 7).toString();
-				textFieldDoctorEmail.setText(email.substring(0, email.indexOf("@")));
+				String emailFirstHalf = model.getValueAt(selectedRowIndex, 7).toString();
+				textFieldDoctorEmail.setText(emailFirstHalf.substring(0, emailFirstHalf.indexOf("@")));
 				
-				String email2 = model.getValueAt(selectedRowIndex, 7).toString().substring(email.indexOf("@"));
-				comboBoxDoctorEmail.setSelectedItem(email2);
+				String emailSecondHalf = model.getValueAt(selectedRowIndex, 7).toString().substring(emailFirstHalf.indexOf("@"));
+				comboBoxDoctorEmail.setSelectedItem(emailSecondHalf);
 				
 			}
 		});
@@ -896,14 +926,13 @@ public class MainWindow {
 		tableDoctors.setBounds(10, 40, 669, 201);
 		scrollPaneDoctors.setViewportView(tableDoctors);
 		
+		//Implement button "Quit".
+		
 		JButton btnQuit = new JButton("Quit");
 		btnQuit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?", "Confirm Quit", JOptionPane.YES_NO_OPTION);
-			    if(clickedOption == JOptionPane.YES_OPTION){
-			    	frmMain.dispose();
-			    }
+				utilities.confirmQuitDialog(frmMain);
 				
 			}
 		});

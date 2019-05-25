@@ -1,7 +1,5 @@
 package doctor_appointment_app;
 
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.JLabel;
@@ -16,6 +14,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.EventQueue;
 
 import java.sql.Connection;
 
@@ -157,10 +156,14 @@ public class RegisterWindow {
 				try {
 					Connection connection = data.getConnection();
 					
-					String queryUsername = "SELECT username FROM log_in WHERE username = '" + textFieldUsername.getText() + "'";
+					String queryUsername = "SELECT username "
+											+ "FROM log_in "
+											+ "WHERE username = '" + textFieldUsername.getText() + "'";
 					queryUsername = data.getColumnAsString(connection, queryUsername, "username");
 					
 					boolean isWarningClear = true;
+					
+					//Validate fields.
 					
 					if(textFieldUsername.getText().isEmpty() || textFieldUsername.getText().startsWith(" ")) {
 						lblUsernameWarning.setVisible(true);
@@ -189,12 +192,19 @@ public class RegisterWindow {
 						isWarningClear = false;
 					}
 					
-					//Insert data if all warnings have been cleared.
+					//Execute query if all warnings have been cleared.
 					
 					if(isWarningClear == true) {
-						String hashedPassword = data.getColumnAsString(connection, "SELECT SHA1('" + String.valueOf(passwordField.getPassword()) + "') AS hashedPassword", "hashedPassword");
+						String hashedPassword = data.getColumnAsString(connection, 
+																		"SELECT SHA1('" + String.valueOf(passwordField.getPassword()) + "') AS hashedPassword", 
+																		"hashedPassword"
+																		);
 						
-						String queryInsert = "INSERT INTO log_in VALUES('" + textFieldUsername.getText() + "', '" + hashedPassword + "')";
+						String queryInsert = "INSERT INTO log_in "
+												+ "VALUES('" 
+													+ textFieldUsername.getText() + "', '" 
+													+ hashedPassword 
+												+ "')";
 						data.updateData(connection, queryInsert);
 						
 						frmRegister.dispose();

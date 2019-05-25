@@ -1,6 +1,8 @@
 package doctor_appointment_app;
+
 import java.util.Properties;
 
+import javax.swing.JComboBox;
 import javax.swing.JTable;
 
 import net.proteanit.sql.DbUtils;
@@ -36,8 +38,8 @@ public class DataModule {
 
 			return connection;
 		  
-		}catch(Exception e){
-				e.printStackTrace();
+		} catch(Exception exception) {
+			exception.printStackTrace();
 		}
 	  
 		return null;
@@ -56,8 +58,8 @@ public class DataModule {
 				return resultSet.getString(columnName);
 				
 			} else {
-				
 				return null;
+				
 			}
 
 			
@@ -69,7 +71,7 @@ public class DataModule {
 
 	}
 	
-	//Update data in the database.
+	//Modify data in the database.
 	
 	public void updateData(Connection connection, String query) {
 		
@@ -84,6 +86,7 @@ public class DataModule {
 	}
 	
 	//Select data in the database and populate a JTable.
+	
 	public void selectData(Connection connection, String query, JTable table) {
 		
 		try {
@@ -92,6 +95,24 @@ public class DataModule {
 			table.setModel(DbUtils.resultSetToTableModel(resultSet));
 			
 		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+		
+	}
+	
+	//Fill JComboBox with data from a database.
+	
+	public void fillComboBox(Connection connection, String query, JComboBox<String> comboBox, String columnName) {
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(query);
+			ResultSet resultSet = statement.executeQuery();
+
+			while(resultSet.next()) {
+				comboBox.addItem(resultSet.getString(columnName));  
+
+			}
+		} catch(Exception exception) {
 			exception.printStackTrace();
 		}
 		
