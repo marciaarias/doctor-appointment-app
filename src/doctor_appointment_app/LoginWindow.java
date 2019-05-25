@@ -27,6 +27,11 @@ public class LoginWindow {
 	private JLabel lblWarning;
 	private Timer timer;
 	private JButton btnLogin;
+	private static String user;
+	
+	public String getUser() {
+		return user;
+	}
 	
 	//Implement inner class "labelBlink".
 	
@@ -160,10 +165,12 @@ public class LoginWindow {
 					validateCredentials = data.getColumnAsString(connection, validateCredentials, "username");
 					
 					if(validateCredentials != null) {
-						frmLogin.dispose();
+						user = validateCredentials;
 						
 						MainWindow mainWindow = new MainWindow();
 						mainWindow.frmMain.setVisible(true);
+						
+						frmLogin.dispose();
 						
 					} else {
 						passwordField.setText("");

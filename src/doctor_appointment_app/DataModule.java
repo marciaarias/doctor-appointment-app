@@ -1,6 +1,10 @@
 package doctor_appointment_app;
 import java.util.Properties;
 
+import javax.swing.JTable;
+
+import net.proteanit.sql.DbUtils;
+
 import java.io.FileInputStream;
 
 import java.sql.Connection;
@@ -77,6 +81,20 @@ public class DataModule {
 			exception.printStackTrace();
 		}
 
+	}
+	
+	//Select data in a table.
+	public void selectData(Connection connection, String query, JTable table) {
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(query);
+			ResultSet resultSet = statement.executeQuery();
+			table.setModel(DbUtils.resultSetToTableModel(resultSet));
+			
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+		
 	}
 
 }

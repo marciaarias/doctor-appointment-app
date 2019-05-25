@@ -9,8 +9,8 @@ import javax.swing.JFormattedTextField.AbstractFormatter;
 public class DateLabelFormatter extends AbstractFormatter {
 	private static final long serialVersionUID = 1L;
 	
-	private String datePattern = "EEEE, MMM dd, yyyy";
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+	public String datePattern = "MMM dd, yyyy";
+	private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
 
     @Override
     public Object stringToValue(String text) throws ParseException {

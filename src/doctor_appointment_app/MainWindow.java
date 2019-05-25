@@ -2,11 +2,14 @@ package doctor_appointment_app;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JSeparator;
 import javax.swing.UIManager;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.MaskFormatter;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -21,12 +24,22 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.ParseException;
 import java.util.Properties;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import javax.swing.ListSelectionModel;
+import javax.swing.JScrollPane;
 
 public class MainWindow {
 
@@ -42,6 +55,8 @@ public class MainWindow {
 	private JTextField textFieldDoctorLastName;
 	private JTextField textFieldDoctorEmail;
 	private JTextField textFieldDoctorOfPatient;
+	private JFormattedTextField formattedTextFieldDoctorPhone;
+	Utilities utilities = new Utilities();
 
 	/**
 	 * Launch the application.
@@ -77,28 +92,51 @@ public class MainWindow {
 	 */
 	private void initialize() {
 		frmMain = new JFrame();
+		
+		//Override windowClosing event.
+		
+		frmMain.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				
+				int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?", "Confirm Quit", JOptionPane.YES_NO_OPTION);
+			    if(clickedOption == JOptionPane.YES_OPTION){
+			    	frmMain.dispose();
+			    }
+				
+			}
+		});
 		frmMain.setResizable(false);
 		frmMain.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\appointmentManager.png"));
 		frmMain.setTitle("Home - Doctor Appointment Manager");
 		frmMain.setBounds(100, 100, 774, 976);
 		frmMain.setLocationRelativeTo(null);
-		frmMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmMain.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frmMain.getContentPane().setLayout(null);
-		
-		JLabel lblWelcomeBack = new JLabel("Welcome back, Fulano");
+
+		JLabel lblWelcomeBack = new JLabel("Welcome back, " + new LoginWindow().getUser());
 		lblWelcomeBack.setFont(new Font("Trebuchet MS", Font.BOLD, 20));
 		lblWelcomeBack.setBounds(7, 9, 426, 23);
 		frmMain.getContentPane().add(lblWelcomeBack);
+		
+		//Implement label "Logout".
 		
 		JLabel lblLogout = new JLabel("<HTML><U>Logout</HTML></U>");
 		lblLogout.setToolTipText("Logout & return to welcome window");
 		lblLogout.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				DoctorAppointmentApp doctorAppointmentApp = new DoctorAppointmentApp();
-				doctorAppointmentApp.frmDoctorAppointmentManager.setVisible(true);
 				
-				frmMain.dispose();
+				int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "Confirm Logout", JOptionPane.YES_NO_OPTION);
+				
+			    if(clickedOption == JOptionPane.YES_OPTION){
+			    	frmMain.dispose();
+			    	
+					DoctorAppointmentApp doctorAppointmentApp = new DoctorAppointmentApp();
+					doctorAppointmentApp.frmDoctorAppointmentManager.setVisible(true);
+					
+			    }
+				
 			}
 		});
 		lblLogout.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -117,10 +155,32 @@ public class MainWindow {
 		lblSelectDoctorTop.setBounds(232, 58, 112, 30);
 		frmMain.getContentPane().add(lblSelectDoctorTop);
 		
-		JComboBox comboBoxSelectDoctorTop = new JComboBox();
+		JComboBox<String> comboBoxSelectDoctorTop = new JComboBox<>();
 		comboBoxSelectDoctorTop.setToolTipText("Selection will influence Appointments & Patients tab");
 		comboBoxSelectDoctorTop.setBounds(347, 62, 179, 22);
 		frmMain.getContentPane().add(comboBoxSelectDoctorTop);
+		
+		//Fill comboBoxSelectDoctorTop with values from database.
+		
+		{
+			DataModule data = new DataModule();
+		
+			try {
+				Connection connection = data.getConnection();
+			
+				String query = "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM doctors";
+				PreparedStatement statement = connection.prepareStatement(query);
+				ResultSet resultSet = statement.executeQuery();
+			
+				while(resultSet.next()) {
+					comboBoxSelectDoctorTop.addItem(resultSet.getString("full_name"));  
+				
+				}
+			
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}
 		
 		JLabel lblAppointments = new JLabel("Appointments");
 		lblAppointments.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -151,12 +211,15 @@ public class MainWindow {
 		panelAppointments.add(lblViewAppointments);
 		
 		JButton btnShowAppointments = new JButton("Show Appointments");
+		btnShowAppointments.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				
+			}
+		});
 		btnShowAppointments.setBounds(552, 10, 127, 23);
 		panelAppointments.add(btnShowAppointments);
-		
-		tableAppointments = new JTable();
-		tableAppointments.setBounds(10, 40, 669, 201);
-		panelAppointments.add(tableAppointments);
 		
 		JLabel lblManageAppointments = new JLabel("Manage Appointments:");
 		lblManageAppointments.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -250,6 +313,14 @@ public class MainWindow {
 		btnDeleteAppointment.setBounds(382, 489, 89, 23);
 		panelAppointments.add(btnDeleteAppointment);
 		
+		JScrollPane scrollPaneAppointments = new JScrollPane();
+		scrollPaneAppointments.setBounds(10, 40, 669, 201);
+		panelAppointments.add(scrollPaneAppointments);
+		
+		tableAppointments = new JTable();
+		tableAppointments.setBounds(10, 40, 669, 201);
+		scrollPaneAppointments.setViewportView(tableAppointments);
+		
 		JPanel panelPatients = new JPanel();
 		tabbedPane.addTab("       ", new ImageIcon("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\patients.png"), panelPatients, null);
 		panelPatients.setLayout(null);
@@ -262,10 +333,6 @@ public class MainWindow {
 		JButton btnShowPatients = new JButton("Show Patients");
 		btnShowPatients.setBounds(552, 10, 127, 23);
 		panelPatients.add(btnShowPatients);
-		
-		tablePatients = new JTable();
-		tablePatients.setBounds(10, 40, 669, 201);
-		panelPatients.add(tablePatients);
 		
 		JLabel lblManagePatients = new JLabel("Manage Patients:");
 		lblManagePatients.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -384,6 +451,14 @@ public class MainWindow {
 		btnDeletePatient.setBounds(382, 489, 89, 23);
 		panelPatients.add(btnDeletePatient);
 		
+		JScrollPane scrollPanePatients = new JScrollPane();
+		scrollPanePatients.setBounds(10, 40, 669, 201);
+		panelPatients.add(scrollPanePatients);
+		
+		tablePatients = new JTable();
+		tablePatients.setBounds(10, 40, 669, 201);
+		scrollPanePatients.setViewportView(tablePatients);
+		
 		JPanel panelDoctors = new JPanel();
 		tabbedPane.addTab("", new ImageIcon("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\doctors.png"), panelDoctors, null);
 		panelDoctors.setLayout(null);
@@ -394,12 +469,28 @@ public class MainWindow {
 		panelDoctors.add(lblViewDoctors);
 		
 		JButton btnShowDoctors = new JButton("Show Doctors");
+		btnShowDoctors.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				DataModule data = new DataModule();
+				
+				try {
+					Connection connection = data.getConnection();
+					
+					String query = "SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors";
+					data.selectData(connection, query, tableDoctors);
+					
+					String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
+					utilities.renameColumns(tableDoctors, columnNames);
+					
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+				
+			}
+		});
 		btnShowDoctors.setBounds(552, 10, 127, 23);
 		panelDoctors.add(btnShowDoctors);
-		
-		tableDoctors = new JTable();
-		tableDoctors.setBounds(10, 40, 669, 201);
-		panelDoctors.add(tableDoctors);
 		
 		JLabel lblManageDoctors = new JLabel("Manage Doctors:");
 		lblManageDoctors.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -428,10 +519,32 @@ public class MainWindow {
 		lblDoctorTitle.setBounds(20, 286, 81, 14);
 		panelDoctors.add(lblDoctorTitle);
 		
-		JComboBox comboBoxDoctorTitle = new JComboBox();
+		JComboBox<String> comboBoxDoctorTitle = new JComboBox<>();
 		comboBoxDoctorTitle.setToolTipText("Select doctor's title");
 		comboBoxDoctorTitle.setBounds(20, 303, 189, 22);
 		panelDoctors.add(comboBoxDoctorTitle);
+		
+		//Fill comboBoxDoctorTitle with values from database.
+		
+		{
+			DataModule data = new DataModule();
+		
+			try {
+				Connection connection = data.getConnection();
+			
+				String query = "SELECT title FROM titles";
+				PreparedStatement statement = connection.prepareStatement(query);
+				ResultSet resultSet = statement.executeQuery();
+			
+				while(resultSet.next()) {
+					comboBoxDoctorTitle.addItem(resultSet.getString("title"));  
+				
+				}
+			
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}
 		
 		JLabel lblDoctorFirstName = new JLabel("First Name:");
 		lblDoctorFirstName.setBounds(20, 334, 76, 14);
@@ -472,19 +585,49 @@ public class MainWindow {
 		lblDoctorGender.setBounds(363, 380, 46, 14);
 		panelDoctors.add(lblDoctorGender);
 		
-		JComboBox comboBoxDoctorGender = new JComboBox();
+		JComboBox<String> comboBoxDoctorGender = new JComboBox<>();
 		comboBoxDoctorGender.setToolTipText("Select doctor's gender");
 		comboBoxDoctorGender.setBounds(363, 394, 189, 22);
 		panelDoctors.add(comboBoxDoctorGender);
+		
+		//Fill comboBoxDoctorGender with values from database.
+		
+		{
+			DataModule data = new DataModule();
+		
+			try {
+				Connection connection = data.getConnection();
+			
+				String query = "SELECT gender FROM genders";
+				PreparedStatement statement = connection.prepareStatement(query);
+				ResultSet resultSet = statement.executeQuery();
+			
+				while(resultSet.next()) {
+					comboBoxDoctorGender.addItem(resultSet.getString("gender"));  
+				
+				}
+			
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}
 		
 		JLabel lblDoctorPhone = new JLabel("Phone Number:");
 		lblDoctorPhone.setBounds(21, 429, 98, 14);
 		panelDoctors.add(lblDoctorPhone);
 		
-		JFormattedTextField formattedTextFieldDoctorPhone = new JFormattedTextField();
-		formattedTextFieldDoctorPhone.setToolTipText("Enter doctor's phone number");
-		formattedTextFieldDoctorPhone.setBounds(21, 444, 189, 20);
-		panelDoctors.add(formattedTextFieldDoctorPhone);
+		//Create mask for field "formattedTextFieldDoctorPhone".
+		
+		try {
+			MaskFormatter mask = new MaskFormatter("(###) ###-####");
+			formattedTextFieldDoctorPhone = new JFormattedTextField(mask);
+			formattedTextFieldDoctorPhone.setToolTipText("Enter doctor's phone number");
+			formattedTextFieldDoctorPhone.setBounds(21, 444, 189, 20);
+			panelDoctors.add(formattedTextFieldDoctorPhone);
+			
+		} catch (ParseException exception) {
+			exception.printStackTrace();
+		}
 		
 		JLabel lblDoctorEmail = new JLabel("Email:");
 		lblDoctorEmail.setBounds(363, 427, 46, 14);
@@ -496,10 +639,32 @@ public class MainWindow {
 		textFieldDoctorEmail.setBounds(363, 442, 89, 22);
 		panelDoctors.add(textFieldDoctorEmail);
 		
-		JComboBox comboBoxDoctorEmail = new JComboBox();
+		JComboBox<String> comboBoxDoctorEmail = new JComboBox<>();
 		comboBoxDoctorEmail.setToolTipText("Select email provider");
 		comboBoxDoctorEmail.setBounds(454, 442, 98, 22);
 		panelDoctors.add(comboBoxDoctorEmail);
+		
+		//Fill comboBoxDoctorEmail with values from database.
+		
+		{
+			DataModule data = new DataModule();
+		
+			try {
+				Connection connection = data.getConnection();
+			
+				String query = "SELECT email_provider FROM email_providers";
+				PreparedStatement statement = connection.prepareStatement(query);
+				ResultSet resultSet = statement.executeQuery();
+			
+				while(resultSet.next()) {
+					comboBoxDoctorEmail.addItem(resultSet.getString("email_provider"));  
+				
+				}
+			
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}
 		
 		JButton btnAddDoctor = new JButton("Add");
 		btnAddDoctor.setToolTipText("Add current doctor");
@@ -516,7 +681,59 @@ public class MainWindow {
 		btnDeleteDoctor.setBounds(382, 489, 89, 23);
 		panelDoctors.add(btnDeleteDoctor);
 		
+		JScrollPane scrollPaneDoctors = new JScrollPane();
+		scrollPaneDoctors.setBounds(10, 40, 669, 201);
+		panelDoctors.add(scrollPaneDoctors);
+		
+		//Implement MouseClicked on 'tableDoctors'.
+		
+		tableDoctors = new JTable();
+		tableDoctors.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				DefaultTableModel model = (DefaultTableModel)tableDoctors.getModel();
+				int selectedRowIndex = tableDoctors.getSelectedRow();
+				
+				comboBoxDoctorTitle.setSelectedItem(model.getValueAt(selectedRowIndex, 1).toString());
+				textFieldDoctorFirstName.setText(model.getValueAt(selectedRowIndex, 2).toString());
+				textFieldDoctorLastName.setText(model.getValueAt(selectedRowIndex, 3).toString());
+				
+				String dateOfBirth = model.getValueAt(selectedRowIndex, 4).toString();
+				int year = Integer.parseInt(dateOfBirth.substring(6));
+				int month = Integer.parseInt(dateOfBirth.substring(0, 2)) - 1;
+				int day = Integer.parseInt(dateOfBirth.substring(3, 5));
+				doctorDOBModel.setDate(year, month, day);
+				doctorDOBModel.setSelected(true);
+				
+				comboBoxDoctorGender.setSelectedItem(model.getValueAt(selectedRowIndex, 5).toString());
+				
+				String phoneNumber = model.getValueAt(selectedRowIndex, 6).toString().replaceAll("-", "");
+				formattedTextFieldDoctorPhone.setText(phoneNumber);
+				
+				String email = model.getValueAt(selectedRowIndex, 7).toString();
+				textFieldDoctorEmail.setText(email.substring(0, email.indexOf("@")));
+				
+				String email2 = model.getValueAt(selectedRowIndex, 7).toString().substring(email.indexOf("@"));
+				comboBoxDoctorEmail.setSelectedItem(email2);
+				
+			}
+		});
+		tableDoctors.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tableDoctors.setBounds(10, 40, 669, 201);
+		scrollPaneDoctors.setViewportView(tableDoctors);
+		
 		JButton btnQuit = new JButton("Quit");
+		btnQuit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?", "Confirm Quit", JOptionPane.YES_NO_OPTION);
+			    if(clickedOption == JOptionPane.YES_OPTION){
+			    	frmMain.dispose();
+			    }
+				
+			}
+		});
 		btnQuit.setToolTipText("Quit the application");
 		btnQuit.setBounds(639, 887, 89, 30);
 		frmMain.getContentPane().add(btnQuit);
