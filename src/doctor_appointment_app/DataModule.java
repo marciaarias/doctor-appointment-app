@@ -44,7 +44,7 @@ public class DataModule {
 	  
 	}
 	
-	//Return content of a column in a table.
+	//Return content of a column in a table in the database.
 	
 	public String getColumnAsString(Connection connection, String query, String columnName) {
 		
@@ -69,7 +69,7 @@ public class DataModule {
 
 	}
 	
-	//Update data in a table.
+	//Update data in the database.
 	
 	public void updateData(Connection connection, String query) {
 		
@@ -83,7 +83,7 @@ public class DataModule {
 
 	}
 	
-	//Select data in a table.
+	//Select data in the database and populate a JTable.
 	public void selectData(Connection connection, String query, JTable table) {
 		
 		try {

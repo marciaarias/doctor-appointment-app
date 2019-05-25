@@ -687,34 +687,44 @@ public class MainWindow {
 					try {
 						Connection connection = data.getConnection();
 						
-						String stringDate_of_birth = doctorDOBPicker.getJFormattedTextField().getText();
-						SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");  
-						Date dateDate_of_birth = simpleDateFormat.parse(stringDate_of_birth);  
+						//Check if email is unique.
 						
-						simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-						stringDate_of_birth = simpleDateFormat.format(dateDate_of_birth);
-						
-						String query = "INSERT INTO doctors (title, first_name, last_name, date_of_birth, gender, phone_number, email) "
-										+ "VALUES('" 
-										+ comboBoxDoctorTitle.getSelectedItem().toString() + "', '" 
-										+ textFieldDoctorFirstName.getText() + "', '" 
-										+ textFieldDoctorLastName.getText() + "', '"
-										+ stringDate_of_birth + "', '"
-										+ comboBoxDoctorGender.getSelectedItem().toString() + "', '"
-										+ formattedTextFieldDoctorPhone.getText() + "', '"
-										+ textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString()) + "')";
-						
-						PreparedStatement statement = connection.prepareStatement(query);
-					    statement.executeUpdate(query);
-					    data.selectData(connection, 
-	    						"SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors", 
-	    						tableDoctors
-	    						);
-						
-						
-					    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
-						utilities.renameColumns(tableDoctors, columnNames);
-						utilities.formatColumn(1, tableDoctors);
+						String email = textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString());
+						String queryEmail = "SELECT email FROM doctors WHERE email = '" + email + "'";
+						queryEmail = data.getColumnAsString(connection, queryEmail, "email");
+					    
+						if(queryEmail != null) {
+							JOptionPane.showMessageDialog(null, "Duplicate entry: email must be unique.", "Error", JOptionPane.ERROR_MESSAGE);
+							
+						} else {
+							String stringDate_of_birth = doctorDOBPicker.getJFormattedTextField().getText();
+							SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");  
+							Date dateDate_of_birth = simpleDateFormat.parse(stringDate_of_birth);  
+							
+							simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+							stringDate_of_birth = simpleDateFormat.format(dateDate_of_birth);
+							
+							String query = "INSERT INTO doctors (title, first_name, last_name, date_of_birth, gender, phone_number, email) "
+											+ "VALUES('" 
+											+ comboBoxDoctorTitle.getSelectedItem().toString() + "', '" 
+											+ textFieldDoctorFirstName.getText() + "', '" 
+											+ textFieldDoctorLastName.getText() + "', '"
+											+ stringDate_of_birth + "', '"
+											+ comboBoxDoctorGender.getSelectedItem().toString() + "', '"
+											+ formattedTextFieldDoctorPhone.getText() + "', '"
+											+ textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString()) + "')";
+							
+							PreparedStatement statement = connection.prepareStatement(query);
+						    statement.executeUpdate(query);
+						    data.selectData(connection, 
+		    						"SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors", 
+		    						tableDoctors
+		    						);
+							
+						    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
+							utilities.renameColumns(tableDoctors, columnNames);
+							
+						}
 						
 					} catch (Exception exception) {
 						exception.printStackTrace();
@@ -738,43 +748,55 @@ public class MainWindow {
 				if(tableDoctors.isRowSelected(selectedRowIndex) == true) {
 				    int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to modify this row?", "Confirm Update", JOptionPane.YES_NO_OPTION);
 				    
-				    if(clickedOption == JOptionPane.YES_OPTION) {	
+				    if(clickedOption == JOptionPane.YES_OPTION) {
 						DataModule data = new DataModule();
 						DefaultTableModel model = (DefaultTableModel)tableDoctors.getModel();
-					
-						try {
-							Connection connection = data.getConnection();
-							
-							String stringDate_of_birth = doctorDOBPicker.getJFormattedTextField().getText();
-							SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");  
-							Date dateDate_of_birth = simpleDateFormat.parse(stringDate_of_birth);  
-							
-							simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-							stringDate_of_birth = simpleDateFormat.format(dateDate_of_birth);
-							
-							String query = "UPDATE doctors SET title = '" + comboBoxDoctorTitle.getSelectedItem().toString() 
-											+ "' , first_name = '" + textFieldDoctorFirstName.getText() 
-											+ "' , last_name = '" + textFieldDoctorLastName.getText() 
-											+ "' , date_of_birth = '" + stringDate_of_birth
-											+ "' , gender = '" + comboBoxDoctorGender.getSelectedItem().toString()
-											+ "' , phone_number = '" + formattedTextFieldDoctorPhone.getText()
-											+ "' , email = '" + textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString())
-											+ "' WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
 						
-							PreparedStatement statement = connection.prepareStatement(query);
-						    statement.executeUpdate(query);
-						    data.selectData(connection, 
-				    						"SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors", 
-				    						tableDoctors
-				    						);
+							try {
+								Connection connection = data.getConnection();
+								
+								//Check if email is unique.
+								
+								String email = textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString());
+								String queryEmail = "SELECT email FROM doctors WHERE email = '" + email + "' AND id != " + (int)(model.getValueAt(selectedRowIndex, 0));
+								queryEmail = data.getColumnAsString(connection, queryEmail, "email");
+							    
+								if(queryEmail != null) {
+									JOptionPane.showMessageDialog(null, "Duplicate entry: email must be unique.", "Error", JOptionPane.ERROR_MESSAGE);
+									
+								} else {
+									String stringDate_of_birth = doctorDOBPicker.getJFormattedTextField().getText();
+									SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");  
+									Date dateDate_of_birth = simpleDateFormat.parse(stringDate_of_birth);  
+									
+									simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+									stringDate_of_birth = simpleDateFormat.format(dateDate_of_birth);
+									
+									String query = "UPDATE doctors SET title = '" + comboBoxDoctorTitle.getSelectedItem().toString() 
+													+ "' , first_name = '" + textFieldDoctorFirstName.getText() 
+													+ "' , last_name = '" + textFieldDoctorLastName.getText() 
+													+ "' , date_of_birth = '" + stringDate_of_birth
+													+ "' , gender = '" + comboBoxDoctorGender.getSelectedItem().toString()
+													+ "' , phone_number = '" + formattedTextFieldDoctorPhone.getText()
+													+ "' , email = '" + email
+													+ "' WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
+								
+									PreparedStatement statement = connection.prepareStatement(query);
+								    statement.executeUpdate(query);
+								    data.selectData(connection, 
+						    						"SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors", 
+						    						tableDoctors
+						    						);
+									
+								    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
+									utilities.renameColumns(tableDoctors, columnNames);
+									
+								}
 							
-						    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
-							utilities.renameColumns(tableDoctors, columnNames);
-							utilities.formatColumn(1, tableDoctors);
+							} catch (Exception exception) {
+								exception.printStackTrace();
+							}
 						
-						} catch (Exception exception) {
-							exception.printStackTrace();
-						}
 				    }
 				    
 				} else {
@@ -816,7 +838,6 @@ public class MainWindow {
 							
 						    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 							utilities.renameColumns(tableDoctors, columnNames);
-							utilities.formatColumn(1, tableDoctors);
 						
 						} catch (Exception exception) {
 							exception.printStackTrace();
