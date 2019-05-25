@@ -33,9 +33,11 @@ import java.awt.event.WindowEvent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-
+import java.text.DateFormat;
 import java.text.ParseException;
-
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Properties;
 
 import org.jdatepicker.impl.JDatePanelImpl;
@@ -955,7 +957,34 @@ public class MainWindow {
 		tableDoctors.setBounds(10, 40, 669, 201);
 		scrollPaneDoctors.setViewportView(tableDoctors);
 		
+		//Implement button "Clear".
+		
 		JButton btnClearDoctors = new JButton("Clear");
+		btnClearDoctors.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				comboBoxDoctorTitle.setSelectedIndex(0);
+				
+				textFieldDoctorFirstName.setText("");
+				
+				textFieldDoctorLastName.setText("");
+				
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
+				Date currentDate = new Date();
+				String date = dateFormat.format(currentDate);
+				doctorDOBModel.setDate(Integer.parseInt(date.substring(0, 4)), Integer.parseInt(date.substring(5,6)) - 1, Integer.parseInt(date.substring(7)));
+				doctorDOBPicker.getJFormattedTextField().setText("");
+				
+				comboBoxDoctorGender.setSelectedIndex(0);
+				
+				formattedTextFieldDoctorPhone.setText("");
+				
+				textFieldDoctorEmail.setText("");
+				
+				comboBoxDoctorEmail.setSelectedIndex(0);
+				
+			}
+		});
 		btnClearDoctors.setBounds(28, 489, 89, 23);
 		panelDoctors.add(btnClearDoctors);
 		
