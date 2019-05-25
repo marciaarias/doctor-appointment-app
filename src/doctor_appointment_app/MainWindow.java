@@ -16,6 +16,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.JFormattedTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.JScrollPane;
 
 import java.awt.Toolkit;
 import java.awt.EventQueue;
@@ -24,22 +26,24 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import java.util.Date;
 import java.util.Properties;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import javax.swing.ListSelectionModel;
-import javax.swing.JScrollPane;
 
 public class MainWindow {
 
@@ -666,17 +670,165 @@ public class MainWindow {
 			}
 		}
 		
+		//Implement button 'Add'.
+		
 		JButton btnAddDoctor = new JButton("Add");
+		btnAddDoctor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if(textFieldDoctorFirstName.getText().isEmpty() || textFieldDoctorLastName.getText().isEmpty() 
+						|| doctorDOBPicker.getJFormattedTextField().getText().isEmpty() || formattedTextFieldDoctorPhone.getText().length() < 7 
+						|| textFieldDoctorEmail.getText().isEmpty()) {
+					JOptionPane.showMessageDialog(new JFrame(), "Fields cannot be left empty.", "Error", JOptionPane.ERROR_MESSAGE);
+					
+				} else {
+					DataModule data = new DataModule();
+					
+					try {
+						Connection connection = data.getConnection();
+						
+						String stringDate_of_birth = doctorDOBPicker.getJFormattedTextField().getText();
+						SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");  
+						Date dateDate_of_birth = simpleDateFormat.parse(stringDate_of_birth);  
+						
+						simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+						stringDate_of_birth = simpleDateFormat.format(dateDate_of_birth);
+						
+						String query = "INSERT INTO doctors (title, first_name, last_name, date_of_birth, gender, phone_number, email) "
+										+ "VALUES('" 
+										+ comboBoxDoctorTitle.getSelectedItem().toString() + "', '" 
+										+ textFieldDoctorFirstName.getText() + "', '" 
+										+ textFieldDoctorLastName.getText() + "', '"
+										+ stringDate_of_birth + "', '"
+										+ comboBoxDoctorGender.getSelectedItem().toString() + "', '"
+										+ formattedTextFieldDoctorPhone.getText() + "', '"
+										+ textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString()) + "')";
+						
+						PreparedStatement statement = connection.prepareStatement(query);
+					    statement.executeUpdate(query);
+					    data.selectData(connection, 
+	    						"SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors", 
+	    						tableDoctors
+	    						);
+						
+						
+					    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
+						utilities.renameColumns(tableDoctors, columnNames);
+						utilities.formatColumn(1, tableDoctors);
+						
+					} catch (Exception exception) {
+						exception.printStackTrace();
+					}
+				}
+				
+			}
+		});
 		btnAddDoctor.setToolTipText("Add current doctor");
 		btnAddDoctor.setBounds(580, 489, 89, 23);
 		panelDoctors.add(btnAddDoctor);
 		
+		//Implement button 'Update'.
+		
 		JButton btnUpdateDoctor = new JButton("Update");
+		btnUpdateDoctor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int selectedRowIndex = tableDoctors.getSelectedRow();
+				
+				if(tableDoctors.isRowSelected(selectedRowIndex) == true) {
+				    int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to modify this row?", "Confirm Update", JOptionPane.YES_NO_OPTION);
+				    
+				    if(clickedOption == JOptionPane.YES_OPTION) {	
+						DataModule data = new DataModule();
+						DefaultTableModel model = (DefaultTableModel)tableDoctors.getModel();
+					
+						try {
+							Connection connection = data.getConnection();
+							
+							String stringDate_of_birth = doctorDOBPicker.getJFormattedTextField().getText();
+							SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");  
+							Date dateDate_of_birth = simpleDateFormat.parse(stringDate_of_birth);  
+							
+							simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+							stringDate_of_birth = simpleDateFormat.format(dateDate_of_birth);
+							
+							String query = "UPDATE doctors SET title = '" + comboBoxDoctorTitle.getSelectedItem().toString() 
+											+ "' , first_name = '" + textFieldDoctorFirstName.getText() 
+											+ "' , last_name = '" + textFieldDoctorLastName.getText() 
+											+ "' , date_of_birth = '" + stringDate_of_birth
+											+ "' , gender = '" + comboBoxDoctorGender.getSelectedItem().toString()
+											+ "' , phone_number = '" + formattedTextFieldDoctorPhone.getText()
+											+ "' , email = '" + textFieldDoctorEmail.getText().concat(comboBoxDoctorEmail.getSelectedItem().toString())
+											+ "' WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
+						
+							PreparedStatement statement = connection.prepareStatement(query);
+						    statement.executeUpdate(query);
+						    data.selectData(connection, 
+				    						"SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors", 
+				    						tableDoctors
+				    						);
+							
+						    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
+							utilities.renameColumns(tableDoctors, columnNames);
+							utilities.formatColumn(1, tableDoctors);
+						
+						} catch (Exception exception) {
+							exception.printStackTrace();
+						}
+				    }
+				    
+				} else {
+					JOptionPane.showMessageDialog(null, "Please select a row first.", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+				
+			}
+		});
 		btnUpdateDoctor.setToolTipText("Update selected doctor");
 		btnUpdateDoctor.setBounds(481, 489, 89, 23);
 		panelDoctors.add(btnUpdateDoctor);
 		
+		//Implement button 'Delete'.
+		
 		JButton btnDeleteDoctor = new JButton("Delete");
+		btnDeleteDoctor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int selectedRowIndex = tableDoctors.getSelectedRow();
+				
+				if(tableDoctors.isRowSelected(selectedRowIndex) == true) {
+				    int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this row?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+				    
+				    if(clickedOption == JOptionPane.YES_OPTION) {	
+						DataModule data = new DataModule();
+						DefaultTableModel model = (DefaultTableModel)tableDoctors.getModel();
+					
+						try {
+							Connection connection = data.getConnection();
+						
+							String query = "DELETE FROM doctors WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
+						
+							PreparedStatement statement = connection.prepareStatement(query);
+						    statement.executeUpdate(query);
+						    data.selectData(connection, 
+						    				"SELECT id, title, first_name, last_name, DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, gender, phone_number, email FROM doctors", 
+						    				tableDoctors
+						    				);
+							
+						    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
+							utilities.renameColumns(tableDoctors, columnNames);
+							utilities.formatColumn(1, tableDoctors);
+						
+						} catch (Exception exception) {
+							exception.printStackTrace();
+						}
+				    }
+				    
+				} else {
+					JOptionPane.showMessageDialog(null, "Please select a row first.", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+				
+			}
+		});
 		btnDeleteDoctor.setToolTipText("Delete selected doctor");
 		btnDeleteDoctor.setBounds(382, 489, 89, 23);
 		panelDoctors.add(btnDeleteDoctor);
