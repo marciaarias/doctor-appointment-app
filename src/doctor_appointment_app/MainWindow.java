@@ -302,6 +302,10 @@ public class MainWindow {
 		btnDeleteAppointment.setBounds(382, 489, 89, 23);
 		panelAppointments.add(btnDeleteAppointment);
 		
+		JButton btnClearAppointments = new JButton("Clear");
+		btnClearAppointments.setBounds(28, 489, 89, 23);
+		panelAppointments.add(btnClearAppointments);
+		
 		JScrollPane scrollPaneAppointments = new JScrollPane();
 		scrollPaneAppointments.setBounds(10, 40, 669, 201);
 		panelAppointments.add(scrollPaneAppointments);
@@ -439,6 +443,10 @@ public class MainWindow {
 		btnDeletePatient.setToolTipText("Delete selected patient");
 		btnDeletePatient.setBounds(382, 489, 89, 23);
 		panelPatients.add(btnDeletePatient);
+		
+		JButton btnClearPatients = new JButton("Clear");
+		btnClearPatients.setBounds(28, 489, 89, 23);
+		panelPatients.add(btnClearPatients);
 		
 		JScrollPane scrollPanePatients = new JScrollPane();
 		scrollPanePatients.setBounds(10, 40, 669, 201);
@@ -925,6 +933,10 @@ public class MainWindow {
 		tableDoctors.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tableDoctors.setBounds(10, 40, 669, 201);
 		scrollPaneDoctors.setViewportView(tableDoctors);
+		
+		JButton btnClearDoctors = new JButton("Clear");
+		btnClearDoctors.setBounds(28, 489, 89, 23);
+		panelDoctors.add(btnClearDoctors);
 		
 		//Implement button "Quit".
 		
