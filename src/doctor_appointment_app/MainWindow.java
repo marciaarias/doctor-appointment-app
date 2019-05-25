@@ -59,6 +59,8 @@ public class MainWindow {
 	private JTextField textFieldDoctorEmail;
 	private JTextField textFieldDoctorOfPatient;
 	private JFormattedTextField formattedTextFieldDoctorPhone;
+	private JLabel lblViewAppointments;
+	private JLabel lblViewPatients;
 	Utilities utilities = new Utilities();
 
 	/**
@@ -121,7 +123,7 @@ public class MainWindow {
 		
 		//Implement label "Logout".
 		
-		JLabel lblLogout = new JLabel("<HTML><U>Logout</HTML></U>");
+		JLabel lblLogout = new JLabel("<HTML><U>Logout</U></HTML>");
 		lblLogout.setToolTipText("Logout & return to welcome window");
 		lblLogout.addMouseListener(new MouseAdapter() {
 			@Override
@@ -154,28 +156,6 @@ public class MainWindow {
 		lblSelectDoctorTop.setBounds(232, 58, 112, 30);
 		frmMain.getContentPane().add(lblSelectDoctorTop);
 		
-		JComboBox<String> comboBoxSelectDoctorTop = new JComboBox<>();
-		comboBoxSelectDoctorTop.setToolTipText("Selection will influence Appointments & Patients tab");
-		comboBoxSelectDoctorTop.setBounds(347, 62, 179, 22);
-		frmMain.getContentPane().add(comboBoxSelectDoctorTop);
-		
-		//Fill "comboBoxSelectDoctorTop" with data from database.
-		
-		{
-			DataModule data = new DataModule();
-		
-			try {
-				Connection connection = data.getConnection();
-			
-				String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name "
-									+ "FROM doctors";
-				data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
-			
-			} catch (Exception exception) {
-				exception.printStackTrace();
-			}
-		}
-		
 		JLabel lblAppointments = new JLabel("Appointments");
 		lblAppointments.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblAppointments.setBounds(110, 99, 106, 23);
@@ -199,7 +179,8 @@ public class MainWindow {
 		tabbedPane.addTab("        ", new ImageIcon("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\appointments.png"), panelAppointments, null);
 		panelAppointments.setLayout(null);
 		
-		JLabel lblViewAppointments = new JLabel("View appointments of Dr. ...:");
+		lblViewAppointments = new JLabel();
+		lblViewAppointments.setText("View appointments of Dr.:");
 		lblViewAppointments.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblViewAppointments.setBounds(10, 16, 330, 18);
 		panelAppointments.add(lblViewAppointments);
@@ -320,7 +301,7 @@ public class MainWindow {
 		tabbedPane.addTab("       ", new ImageIcon("C:\\Users\\arias\\eclipse-workspace\\doctor-appointment-app\\resources\\patients.png"), panelPatients, null);
 		panelPatients.setLayout(null);
 		
-		JLabel lblViewPatients = new JLabel("View patients of Dr. ...:");
+		lblViewPatients = new JLabel("View patients of Dr.:");
 		lblViewPatients.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblViewPatients.setBounds(10, 16, 330, 18);
 		panelPatients.add(lblViewPatients);
@@ -655,6 +636,38 @@ public class MainWindow {
 				String querySelect = "SELECT email_provider "
 									+ "FROM email_providers";
 				data.fillComboBox(connection, querySelect, comboBoxDoctorEmail, "email_provider");
+			
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}
+		
+		//Implement labels "lblViewPatients" & "lblViewAppointments".
+		
+		JComboBox<String> comboBoxSelectDoctorTop = new JComboBox<>();
+		comboBoxSelectDoctorTop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				lblViewPatients.setText("<HTML>View patients of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
+				lblViewAppointments.setText("<HTML>View appointments of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
+				
+			}
+		});
+		comboBoxSelectDoctorTop.setToolTipText("Selection will influence Appointments & Patients tab");
+		comboBoxSelectDoctorTop.setBounds(347, 62, 179, 22);
+		frmMain.getContentPane().add(comboBoxSelectDoctorTop);
+		
+		//Fill "comboBoxSelectDoctorTop" with data from database.
+		
+		{
+			DataModule data = new DataModule();
+		
+			try {
+				Connection connection = data.getConnection();
+			
+				String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name "
+									+ "FROM doctors";
+				data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
 			
 			} catch (Exception exception) {
 				exception.printStackTrace();

@@ -60,7 +60,7 @@ public class DoctorAppointmentApp {
 		
 		//Implement label "Login".
 		
-		JLabel lblLogin = new JLabel("<HTML><U>Login</HTML></U>");
+		JLabel lblLogin = new JLabel("<HTML><U>Login</U></HTML>");
 		lblLogin.setToolTipText("Login existing user");
 		lblLogin.addMouseListener(new MouseAdapter() {
 			@Override
@@ -84,7 +84,7 @@ public class DoctorAppointmentApp {
 		
 		//Implement label "Register".
 		
-		JLabel lblRegister = new JLabel("<HTML><U>Register</HTML></U>");
+		JLabel lblRegister = new JLabel("<HTML><U>Register</U></HTML>");
 		lblRegister.setToolTipText("Register new user");
 		lblRegister.addMouseListener(new MouseAdapter() {
 			@Override
