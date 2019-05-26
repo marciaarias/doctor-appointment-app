@@ -493,7 +493,87 @@ public class MainWindow {
 			}
 		}
 		
+		//Implement button "Add".
+		
 		JButton btnAddPatient = new JButton("Add");
+		btnAddPatient.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				//check if fields are empty.
+				
+				if(textFieldPatientFirstName.getText().isEmpty() 
+						|| textFieldPatientLastName.getText().isEmpty() 
+						|| patientDOBPicker.getJFormattedTextField().getText().isEmpty() 
+						|| formattedTextFieldPatientPhone.getText().length() < 7 
+						|| textFieldPatientEmail.getText().isEmpty()) {
+					
+					JOptionPane.showMessageDialog(new JFrame(), "Fields cannot be left empty.", "Error", JOptionPane.ERROR_MESSAGE);
+					
+				} else {
+					DataModule data = new DataModule();
+					
+					try {
+						Connection connection = data.getConnection();
+						
+						//Check if email is unique.
+						
+						String email = textFieldPatientEmail.getText().concat(comboBoxPatientEmail.getSelectedItem().toString());
+						String queryEmail = "SELECT email "
+											+ "FROM patients "
+											+ "WHERE email = '" + email + "'";
+						queryEmail = data.getColumnAsString(connection, queryEmail, "email");
+					    
+						if(queryEmail != null) {
+							JOptionPane.showMessageDialog(null, "Duplicate entry: email must be unique.", "Error", JOptionPane.ERROR_MESSAGE);
+							
+						} else {
+							
+							//Retrieve date field as "yyyy-MM-dd".
+							
+							String dateOfBirth = patientDOBPicker.getJFormattedTextField().getText();
+							dateOfBirth = utilities.retrieveFormattedDate(dateOfBirth);
+							
+							//Execute query.
+							
+							String queryInsert = "INSERT INTO patients (doctor_id, first_name, last_name, date_of_birth, gender, phone_number, email) "
+												+ "VALUES('"  
+													+ idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()) + "', '" 
+													+ textFieldPatientFirstName.getText() + "', '" 
+													+ textFieldPatientLastName.getText() + "', '"
+													+ dateOfBirth + "', '"
+													+ comboBoxPatientGender.getSelectedItem().toString() + "', '"
+													+ formattedTextFieldPatientPhone.getText() + "', '"
+													+ textFieldPatientEmail.getText().concat(comboBoxPatientEmail.getSelectedItem().toString()) 
+												+ "')";
+							
+							PreparedStatement statement = connection.prepareStatement(queryInsert);
+						    statement.executeUpdate(queryInsert);
+						    data.selectData(connection, 
+											"SELECT "
+													+ "id, "
+													+ "first_name, "
+													+ "last_name, "
+													+ "DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, "
+													+ "gender, "
+													+ "phone_number, "
+													+ "email "
+												+ "FROM patients "
+												+ "WHERE doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()),
+		    								tablePatients
+		    								);
+							
+						    String[] columnNames = {"First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
+							utilities.renameColumns(tablePatients, columnNames);
+							
+						}
+						
+					} catch (Exception exception) {
+						exception.printStackTrace();
+					}
+				}
+				
+			}
+		});
 		btnAddPatient.setToolTipText("Add current patient");
 		btnAddPatient.setBounds(580, 489, 89, 23);
 		panelPatients.add(btnAddPatient);
