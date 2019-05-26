@@ -578,7 +578,89 @@ public class MainWindow {
 		btnAddPatient.setBounds(580, 489, 89, 23);
 		panelPatients.add(btnAddPatient);
 		
+		//Implement button "Update".
+		
 		JButton btnUpdatePatient = new JButton("Update");
+		btnUpdatePatient.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int selectedRowIndex = tablePatients.getSelectedRow();
+				
+				//Confirm row update.
+				
+				if(tablePatients.isRowSelected(selectedRowIndex) == true) {
+				    int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to modify this row?", "Confirm Update", JOptionPane.YES_NO_OPTION);
+				    
+				    if(clickedOption == JOptionPane.YES_OPTION) {
+						DataModule data = new DataModule();
+						DefaultTableModel model = (DefaultTableModel)tablePatients.getModel();
+						
+							try {
+								Connection connection = data.getConnection();
+								
+								//Check if email is unique.
+								
+								String email = textFieldPatientEmail.getText().concat(comboBoxPatientEmail.getSelectedItem().toString());
+								String queryEmail = "SELECT email "
+													+ "FROM patients "
+													+ "WHERE email = '" + email + "' "
+														+ "AND id != " + (int)(model.getValueAt(selectedRowIndex, 0));
+								queryEmail = data.getColumnAsString(connection, queryEmail, "email");
+							    
+								if(queryEmail != null) {
+									JOptionPane.showMessageDialog(null, "Duplicate entry: email must be unique.", "Error", JOptionPane.ERROR_MESSAGE);
+									
+								} else {
+									
+									//Retrieve date field as "yyyy-MM-dd".
+									
+									String dateOfBirth = patientDOBPicker.getJFormattedTextField().getText();
+									dateOfBirth = utilities.retrieveFormattedDate(dateOfBirth);
+									
+									//Execute query.
+									
+									String queryUpdate = "UPDATE patients SET "
+															+ "first_name = '" + textFieldPatientFirstName.getText()+ "' , "
+															+ "last_name = '" + textFieldPatientLastName.getText() + "' , "
+															+ "date_of_birth = '" + dateOfBirth + "' , "
+															+ "gender = '" + comboBoxPatientGender.getSelectedItem().toString() + "' , "
+															+ "phone_number = '" + formattedTextFieldPatientPhone.getText() + "' , "
+															+ "email = '" + email
+														+ "' WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
+								
+									PreparedStatement statement = connection.prepareStatement(queryUpdate);
+								    statement.executeUpdate(queryUpdate);
+								    data.selectData(connection, 
+													"SELECT "
+															+ "id, "
+															+ "first_name, "
+															+ "last_name, "
+															+ "DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, "
+															+ "gender, "
+															+ "phone_number, "
+															+ "email "
+														+ "FROM patients "
+														+ "WHERE doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()), 
+						    						tablePatients
+						    						);
+									
+								    String[] columnNames = {"First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
+									utilities.renameColumns(tablePatients, columnNames);
+									
+								}
+							
+							} catch (Exception exception) {
+								exception.printStackTrace();
+							}
+						
+				    }
+				    
+				} else {
+					JOptionPane.showMessageDialog(null, "Please select a row first.", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+				
+			}
+		});
 		btnUpdatePatient.setToolTipText("Update selected patient");
 		btnUpdatePatient.setBounds(481, 489, 89, 23);
 		panelPatients.add(btnUpdatePatient);
@@ -956,7 +1038,7 @@ public class MainWindow {
 							
 							comboBoxSelectDoctorTop.removeAllItems();
 							String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
-														+ "FROM doctors";
+												+ "FROM doctors";
 							data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
 							
 							//Get id's to populate "tablePatients" and "tableAppointments".
@@ -977,7 +1059,7 @@ public class MainWindow {
 		btnAddDoctor.setBounds(580, 489, 89, 23);
 		panelDoctors.add(btnAddDoctor);
 		
-		//Implement button 'Update'.
+		//Implement button "Update".
 		
 		JButton btnUpdateDoctor = new JButton("Update");
 		btnUpdateDoctor.addActionListener(new ActionListener() {
@@ -1018,13 +1100,14 @@ public class MainWindow {
 									
 									//Execute query.
 									
-									String queryUpdate = "UPDATE doctors SET title = '" + comboBoxDoctorTitle.getSelectedItem().toString() 
-															+ "' , first_name = '" + textFieldDoctorFirstName.getText() 
-															+ "' , last_name = '" + textFieldDoctorLastName.getText() 
-															+ "' , date_of_birth = '" + dateOfBirth
-															+ "' , gender = '" + comboBoxDoctorGender.getSelectedItem().toString()
-															+ "' , phone_number = '" + formattedTextFieldDoctorPhone.getText()
-															+ "' , email = '" + email
+									String queryUpdate = "UPDATE doctors SET "
+															+ "title = '" + comboBoxDoctorTitle.getSelectedItem().toString() + "' , "
+															+ "first_name = '" + textFieldDoctorFirstName.getText() + "' , "
+															+ "last_name = '" + textFieldDoctorLastName.getText() + "' , "
+															+ "date_of_birth = '" + dateOfBirth + "' , "
+															+ "gender = '" + comboBoxDoctorGender.getSelectedItem().toString() + "' , "
+															+ "phone_number = '" + formattedTextFieldDoctorPhone.getText() + "' , "
+															+ "email = '" + email
 														+ "' WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
 								
 									PreparedStatement statement = connection.prepareStatement(queryUpdate);
@@ -1050,7 +1133,7 @@ public class MainWindow {
 									
 									comboBoxSelectDoctorTop.removeAllItems();
 									String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
-																+ "FROM doctors";
+														+ "FROM doctors";
 									data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
 									
 									//Get id's to populate "tablePatients" and "tableAppointments".
@@ -1124,7 +1207,7 @@ public class MainWindow {
 							
 							comboBoxSelectDoctorTop.removeAllItems();
 							String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
-														+ "FROM doctors";
+												+ "FROM doctors";
 							data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
 							
 							//Get id's to populate "tablePatients" and "tableAppointments".
