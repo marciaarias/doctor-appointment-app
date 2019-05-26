@@ -665,7 +665,61 @@ public class MainWindow {
 		btnUpdatePatient.setBounds(481, 489, 89, 23);
 		panelPatients.add(btnUpdatePatient);
 		
+		//Implement button "Delete".
+		
 		JButton btnDeletePatient = new JButton("Delete");
+		btnDeletePatient.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int selectedRowIndex = tablePatients.getSelectedRow();
+				
+				//Confirm row deletion.
+				
+				if(tablePatients.isRowSelected(selectedRowIndex) == true) {
+				    int clickedOption = JOptionPane.showConfirmDialog(null, "Removing a patient will also remove its associated appointments.\nAre you sure you want to delete this row?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+				    
+				    if(clickedOption == JOptionPane.YES_OPTION) {	
+						DataModule data = new DataModule();
+						DefaultTableModel model = (DefaultTableModel)tablePatients.getModel();
+					
+						try {
+							Connection connection = data.getConnection();
+							
+							//Execute query.
+						
+							String queryDelete = "DELETE FROM patients "
+												+ "WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
+						
+							PreparedStatement statement = connection.prepareStatement(queryDelete);
+						    statement.executeUpdate(queryDelete);
+						    data.selectData(connection, 
+						    				"SELECT "
+						    						+ "id, "
+						    						+ "first_name, "
+						    						+ "last_name, "
+						    						+ "DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, "
+						    						+ "gender, "
+						    						+ "phone_number, "
+						    						+ "email "
+						    					+ "FROM patients "
+						    					+ "WHERE doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()), 
+						    				tablePatients
+						    				);
+							
+						    String[] columnNames = {"First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
+							utilities.renameColumns(tablePatients, columnNames);
+						
+						} catch (Exception exception) {
+							exception.printStackTrace();
+						}
+				    }
+				    
+				} else {
+					JOptionPane.showMessageDialog(null, "Please select a row first.", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+				
+			}
+		});
 		btnDeletePatient.setToolTipText("Delete selected patient");
 		btnDeletePatient.setBounds(382, 489, 89, 23);
 		panelPatients.add(btnDeletePatient);
@@ -1159,7 +1213,7 @@ public class MainWindow {
 		btnUpdateDoctor.setBounds(481, 489, 89, 23);
 		panelDoctors.add(btnUpdateDoctor);
 		
-		//Implement button 'Delete'.
+		//Implement button "Delete".
 		
 		JButton btnDeleteDoctor = new JButton("Delete");
 		btnDeleteDoctor.addActionListener(new ActionListener() {
@@ -1170,7 +1224,7 @@ public class MainWindow {
 				//Confirm row deletion.
 				
 				if(tableDoctors.isRowSelected(selectedRowIndex) == true) {
-				    int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this row?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+				    int clickedOption = JOptionPane.showConfirmDialog(null, "Removing a doctor will also remove its associated patients and appointments.\nAre you sure you want to delete this row?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
 				    
 				    if(clickedOption == JOptionPane.YES_OPTION) {	
 						DataModule data = new DataModule();
