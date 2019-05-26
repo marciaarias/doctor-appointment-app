@@ -724,7 +724,32 @@ public class MainWindow {
 		btnDeletePatient.setBounds(382, 489, 89, 23);
 		panelPatients.add(btnDeletePatient);
 		
+		//Implement button "Clear".
+		
 		JButton btnClearPatients = new JButton("Clear");
+		btnClearPatients.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				textFieldPatientFirstName.setText("");
+				
+				textFieldPatientLastName.setText("");
+				
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
+				Date currentDate = new Date();
+				String date = dateFormat.format(currentDate);
+				patientDOBModel.setDate(Integer.parseInt(date.substring(0, 4)), Integer.parseInt(date.substring(5,6)) - 1, Integer.parseInt(date.substring(7)));
+				patientDOBPicker.getJFormattedTextField().setText("");
+				
+				comboBoxPatientGender.setSelectedIndex(0);
+				
+				formattedTextFieldPatientPhone.setText("");
+				
+				textFieldPatientEmail.setText("");
+				
+				comboBoxPatientEmail.setSelectedIndex(0);
+				
+			}
+		});
 		btnClearPatients.setBounds(28, 489, 89, 23);
 		panelPatients.add(btnClearPatients);
 		
