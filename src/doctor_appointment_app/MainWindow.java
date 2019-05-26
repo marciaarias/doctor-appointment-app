@@ -33,11 +33,14 @@ import java.awt.event.WindowEvent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import org.jdatepicker.impl.JDatePanelImpl;
@@ -59,8 +62,11 @@ public class MainWindow {
 	private JTextField textFieldDoctorEmail;
 	private JTextField textFieldDoctorOfPatient;
 	private JFormattedTextField formattedTextFieldDoctorPhone;
+	private JFormattedTextField formattedTextFieldPatientPhone;
 	private JLabel lblViewAppointments;
 	private JLabel lblViewPatients;
+	JComboBox<String> comboBoxSelectDoctorTop = new JComboBox<>();
+	private List<Integer> idsSelectDoctorTop = new ArrayList<>();
 	Utilities utilities = new Utilities();
 
 	/**
@@ -306,7 +312,38 @@ public class MainWindow {
 		lblViewPatients.setBounds(10, 16, 330, 18);
 		panelPatients.add(lblViewPatients);
 		
+		//Implement button "Show Patients".
+		
 		JButton btnShowPatients = new JButton("Show Patients");
+		btnShowPatients.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				DataModule data = new DataModule();
+				
+				try {
+					Connection connection = data.getConnection();
+					
+					String querySelect = "SELECT "
+											+ "id, "
+											+ "first_name, "
+											+ "last_name, "
+											+ "DATE_FORMAT(date_of_birth, '%m-%d-%Y') AS date_of_birth, "
+											+ "gender, "
+											+ "phone_number, "
+											+ "email "
+										+ "FROM patients "
+										+ "WHERE doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()); 
+					data.selectData(connection, querySelect, tablePatients);
+					
+					String[] columnNames = {"First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
+					utilities.renameColumns(tablePatients, columnNames);
+					
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+				
+			}
+		});
 		btnShowPatients.setBounds(552, 10, 127, 23);
 		panelPatients.add(btnShowPatients);
 		
@@ -338,6 +375,8 @@ public class MainWindow {
 		panelPatients.add(lblDoctorOfPatient);
 		
 		textFieldDoctorOfPatient = new JTextField();
+		textFieldDoctorOfPatient.setForeground(Color.DARK_GRAY);
+		textFieldDoctorOfPatient.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		textFieldDoctorOfPatient.setToolTipText("Change doctor on \"Select Doctor\" field at the top");
 		textFieldDoctorOfPatient.setEditable(false);
 		textFieldDoctorOfPatient.setBounds(20, 303, 189, 20);
@@ -383,19 +422,44 @@ public class MainWindow {
 		lblPatientGender.setBounds(363, 380, 46, 14);
 		panelPatients.add(lblPatientGender);
 		
-		JComboBox comboBoxPatientGender = new JComboBox();
+		JComboBox<String> comboBoxPatientGender = new JComboBox<>();
 		comboBoxPatientGender.setToolTipText("Select patient's gender");
 		comboBoxPatientGender.setBounds(363, 394, 189, 22);
 		panelPatients.add(comboBoxPatientGender);
+		
+		//Fill "comboBoxPatientGender" with data from database.
+		
+		{
+			DataModule data = new DataModule();
+		
+			try {
+				Connection connection = data.getConnection();
+			
+				String querySelect = "SELECT gender "
+									+ "FROM genders";
+				data.fillComboBox(connection, querySelect, comboBoxPatientGender, "gender");
+			
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}
 		
 		JLabel lblPatientPhone = new JLabel("Phone Number:");
 		lblPatientPhone.setBounds(21, 429, 98, 14);
 		panelPatients.add(lblPatientPhone);
 		
-		JFormattedTextField formattedTextFieldPatientPhone = new JFormattedTextField();
-		formattedTextFieldPatientPhone.setToolTipText("Enter patient's phone number");
-		formattedTextFieldPatientPhone.setBounds(21, 444, 189, 20);
-		panelPatients.add(formattedTextFieldPatientPhone);
+		//Create mask for field "formattedTextFieldPatientPhone".
+		
+		try {
+			MaskFormatter mask = new MaskFormatter("(###) ###-####");
+			formattedTextFieldPatientPhone = new JFormattedTextField(mask);
+			formattedTextFieldPatientPhone.setToolTipText("Enter patient's phone number");
+			formattedTextFieldPatientPhone.setBounds(21, 444, 189, 20);
+			panelPatients.add(formattedTextFieldPatientPhone);
+		
+		} catch (ParseException exception) {
+			exception.printStackTrace();
+		}
 		
 		JLabel lblPatientEmail = new JLabel("Email:");
 		lblPatientEmail.setBounds(363, 427, 46, 14);
@@ -407,10 +471,27 @@ public class MainWindow {
 		panelPatients.add(textFieldPatientEmail);
 		textFieldPatientEmail.setColumns(10);
 		
-		JComboBox comboBoxPatientEmail = new JComboBox();
+		JComboBox<String> comboBoxPatientEmail = new JComboBox<>();
 		comboBoxPatientEmail.setToolTipText("Select email provider");
 		comboBoxPatientEmail.setBounds(454, 442, 98, 22);
 		panelPatients.add(comboBoxPatientEmail);
+		
+		//Fill "comboBoxPatientEmail" with data from database.
+		
+		{
+			DataModule data = new DataModule();
+		
+			try {
+				Connection connection = data.getConnection();
+			
+				String querySelect = "SELECT email_provider "
+									+ "FROM email_providers";
+				data.fillComboBox(connection, querySelect, comboBoxPatientEmail, "email_provider");
+			
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}
 		
 		JButton btnAddPatient = new JButton("Add");
 		btnAddPatient.setToolTipText("Add current patient");
@@ -435,7 +516,42 @@ public class MainWindow {
 		scrollPanePatients.setBounds(10, 40, 669, 201);
 		panelPatients.add(scrollPanePatients);
 		
+		//Fill "tablePatients" with "mouseClicked" event.
+		
 		tablePatients = new JTable();
+		tablePatients.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				DefaultTableModel model = (DefaultTableModel)tablePatients.getModel();
+				int selectedRowIndex = tablePatients.getSelectedRow();
+				
+				textFieldDoctorOfPatient.setText(comboBoxSelectDoctorTop.getSelectedItem().toString());
+				
+				textFieldPatientFirstName.setText(model.getValueAt(selectedRowIndex, 1).toString());
+				
+				textFieldPatientLastName.setText(model.getValueAt(selectedRowIndex, 2).toString());
+				
+				String dateOfBirth = model.getValueAt(selectedRowIndex, 3).toString();
+				int year = Integer.parseInt(dateOfBirth.substring(6));
+				int month = Integer.parseInt(dateOfBirth.substring(0, 2)) - 1;
+				int day = Integer.parseInt(dateOfBirth.substring(3, 5));
+				patientDOBModel.setDate(year, month, day);
+				patientDOBModel.setSelected(true);
+				
+				comboBoxPatientGender.setSelectedItem(model.getValueAt(selectedRowIndex, 4).toString());
+				
+				String phoneNumber = model.getValueAt(selectedRowIndex, 5).toString().replaceAll("-", "");
+				formattedTextFieldPatientPhone.setText(phoneNumber);
+				
+				String emailFirstHalf = model.getValueAt(selectedRowIndex, 6).toString();
+				textFieldPatientEmail.setText(emailFirstHalf.substring(0, emailFirstHalf.indexOf("@")));
+				
+				String emailSecondHalf = model.getValueAt(selectedRowIndex, 6).toString().substring(emailFirstHalf.indexOf("@"));
+				comboBoxPatientEmail.setSelectedItem(emailSecondHalf);
+				
+			}
+		});
 		tablePatients.setBounds(10, 40, 669, 201);
 		scrollPanePatients.setViewportView(tablePatients);
 		
@@ -644,12 +760,18 @@ public class MainWindow {
 		
 		//Implement labels "lblViewPatients" & "lblViewAppointments".
 		
-		JComboBox<String> comboBoxSelectDoctorTop = new JComboBox<>();
 		comboBoxSelectDoctorTop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				lblViewPatients.setText("<HTML>View patients of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
-				lblViewAppointments.setText("<HTML>View appointments of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
+				if(!(comboBoxSelectDoctorTop.getSelectedItem() == null)) {
+					lblViewPatients.setText("<HTML>View patients of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
+					lblViewAppointments.setText("<HTML>View appointments of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
+					
+				} else {
+					lblViewPatients.setText("View patients of Dr.");
+					lblViewAppointments.setText("View appointments of Dr.");
+					
+				}
 				
 			}
 		});
@@ -665,9 +787,13 @@ public class MainWindow {
 			try {
 				Connection connection = data.getConnection();
 			
-				String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name "
+				String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
 									+ "FROM doctors";
 				data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
+				
+				//Get id's to populate "tablePatients" and "tableAppointments".
+
+				data.fillList(connection, querySelect, idsSelectDoctorTop, "id");		
 			
 			} catch (Exception exception) {
 				exception.printStackTrace();
@@ -749,9 +875,14 @@ public class MainWindow {
 							//Refresh "comboBoxSelectDoctorTop".
 							
 							comboBoxSelectDoctorTop.removeAllItems();
-							String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name "
+							String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
 														+ "FROM doctors";
 							data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
+							
+							//Get id's to populate "tablePatients" and "tableAppointments".
+
+							idsSelectDoctorTop.clear();
+							data.fillList(connection, querySelect, idsSelectDoctorTop, "id");
 							
 						}
 						
@@ -838,9 +969,14 @@ public class MainWindow {
 									//Refresh "comboBoxSelectDoctorTop".
 									
 									comboBoxSelectDoctorTop.removeAllItems();
-									String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name "
+									String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
 																+ "FROM doctors";
 									data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
+									
+									//Get id's to populate "tablePatients" and "tableAppointments".
+
+									idsSelectDoctorTop.clear();
+									data.fillList(connection, querySelect, idsSelectDoctorTop, "id");
 									
 								}
 							
@@ -907,9 +1043,14 @@ public class MainWindow {
 							//Refresh "comboBoxSelectDoctorTop".
 							
 							comboBoxSelectDoctorTop.removeAllItems();
-							String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name "
+							String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
 														+ "FROM doctors";
 							data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
+							
+							//Get id's to populate "tablePatients" and "tableAppointments".
+
+							idsSelectDoctorTop.clear();
+							data.fillList(connection, querySelect, idsSelectDoctorTop, "id");
 						
 						} catch (Exception exception) {
 							exception.printStackTrace();
@@ -1014,5 +1155,6 @@ public class MainWindow {
 		btnQuit.setToolTipText("Quit the application");
 		btnQuit.setBounds(639, 887, 89, 30);
 		frmMain.getContentPane().add(btnQuit);
+		
 	}
 }

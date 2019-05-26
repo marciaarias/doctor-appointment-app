@@ -1,5 +1,6 @@
 package doctor_appointment_app;
 
+import java.util.List;
 import java.util.Properties;
 
 import javax.swing.JComboBox;
@@ -112,6 +113,26 @@ public class DataModule {
 				comboBox.addItem(resultSet.getString(columnName));  
 
 			}
+			
+		} catch(Exception exception) {
+			exception.printStackTrace();
+		}
+		
+	}
+	
+	//Fill List with Integer-type data from a database.
+	
+	public void fillList(Connection connection, String query, List<Integer> list, String columnName) {
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(query);
+			ResultSet resultSet = statement.executeQuery();
+
+			while(resultSet.next()) {
+				list.add(resultSet.getInt(columnName));
+
+			}
+			
 		} catch(Exception exception) {
 			exception.printStackTrace();
 		}
