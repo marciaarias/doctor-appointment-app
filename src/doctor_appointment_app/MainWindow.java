@@ -74,6 +74,8 @@ public class MainWindow {
 	JComboBox<String> comboBoxPatientEmail = new JComboBox<>();
 	JComboBox<String> comboBoxDoctorTitle = new JComboBox<>();
 	JComboBox<String> comboBoxDoctorGender = new JComboBox<>();
+	JComboBox<String> comboBoxAppointmentHour = new JComboBox<>();
+	JComboBox<String> comboBoxAppointmentReason = new JComboBox<>();
 	Utilities utilities = new Utilities();
 
 	/**
@@ -135,7 +137,7 @@ public class MainWindow {
 						//HOME WINDOW: initializing fields...
 						
 						querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
-											+ "FROM doctors";
+									+ "FROM doctors";
 						
 						data.fillList(connection, querySelect, idsSelectDoctorTop, "id"); 
 						
@@ -151,6 +153,15 @@ public class MainWindow {
 										+ "JOIN doctors ON patients.doctor_id = doctors.id "
 									+ "WHERE patients.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex());
 						data.fillComboBox(connection, querySelect, comboBoxAppointmentPatient, "patient_full_name");
+						
+						querySelect = "SELECT hour_time "
+									+ "FROM hours "
+									+ "ORDER BY id";
+						data.fillComboBox(connection, querySelect, comboBoxAppointmentHour, "hour_time");
+						
+						querySelect = "SELECT reason "
+									+ "FROM reasons";
+						data.fillComboBox(connection, querySelect, comboBoxAppointmentReason, "reason");
 						
 						//PATIENTS TAB: initializing fields...
 						
@@ -340,6 +351,7 @@ public class MainWindow {
 		panelAppointments.add(lblAppointmentDoctor);
 		
 		textFieldAppointmentDoctor = new JTextField();
+		textFieldAppointmentDoctor.setForeground(Color.DARK_GRAY);
 		textFieldAppointmentDoctor.setToolTipText("Change doctor on \"Select Doctor\" field at the top");
 		textFieldAppointmentDoctor.setFont(new Font("Tahoma", Font.ITALIC, 11));
 		textFieldAppointmentDoctor.setEditable(false);
@@ -374,7 +386,6 @@ public class MainWindow {
 		lblAppointmentHour.setBounds(363, 334, 84, 14);
 		panelAppointments.add(lblAppointmentHour);
 		
-		JComboBox comboBoxAppointmentHour = new JComboBox();
 		comboBoxAppointmentHour.setToolTipText("Select the hour of the appointment");
 		comboBoxAppointmentHour.setBounds(363, 349, 189, 22);
 		panelAppointments.add(comboBoxAppointmentHour);
@@ -383,7 +394,6 @@ public class MainWindow {
 		lblAppointmentReason.setBounds(20, 383, 179, 14);
 		panelAppointments.add(lblAppointmentReason);
 		
-		JComboBox comboBoxAppointmentReason = new JComboBox();
 		comboBoxAppointmentReason.setToolTipText("Select a main reason for the appointment");
 		comboBoxAppointmentReason.setBounds(20, 398, 189, 22);
 		panelAppointments.add(comboBoxAppointmentReason);
@@ -418,34 +428,23 @@ public class MainWindow {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				
+				DefaultTableModel model = (DefaultTableModel)tableAppointments.getModel();
+				int selectedRowIndex = tableAppointments.getSelectedRow();
 				
+				textFieldAppointmentDoctor.setText(comboBoxSelectDoctorTop.getSelectedItem().toString());
 				
-/*				DefaultTableModel model = (DefaultTableModel)tablePatients.getModel();
-				int selectedRowIndex = tablePatients.getSelectedRow();
+				comboBoxAppointmentPatient.setSelectedItem(model.getValueAt(selectedRowIndex, 1).toString());
 				
-				textFieldDoctorOfPatient.setText(comboBoxSelectDoctorTop.getSelectedItem().toString());
-				
-				textFieldPatientFirstName.setText(model.getValueAt(selectedRowIndex, 1).toString());
-				
-				textFieldPatientLastName.setText(model.getValueAt(selectedRowIndex, 2).toString());
-				
-				String dateOfBirth = model.getValueAt(selectedRowIndex, 3).toString();
+				String dateOfBirth = model.getValueAt(selectedRowIndex, 2).toString();
 				int year = Integer.parseInt(dateOfBirth.substring(6));
 				int month = Integer.parseInt(dateOfBirth.substring(0, 2)) - 1;
 				int day = Integer.parseInt(dateOfBirth.substring(3, 5));
-				patientDOBModel.setDate(year, month, day);
-				patientDOBModel.setSelected(true);
+				appointmentModel.setDate(year, month, day);
+				appointmentModel.setSelected(true);
 				
-				comboBoxPatientGender.setSelectedItem(model.getValueAt(selectedRowIndex, 4).toString());
+				comboBoxAppointmentHour.setSelectedItem(model.getValueAt(selectedRowIndex, 3).toString());
 				
-				String phoneNumber = model.getValueAt(selectedRowIndex, 5).toString().replaceAll("-", "");
-				formattedTextFieldPatientPhone.setText(phoneNumber);
-				
-				String emailFirstHalf = model.getValueAt(selectedRowIndex, 6).toString();
-				textFieldPatientEmail.setText(emailFirstHalf.substring(0, emailFirstHalf.indexOf("@")));
-				
-				String emailSecondHalf = model.getValueAt(selectedRowIndex, 6).toString().substring(emailFirstHalf.indexOf("@"));
-				comboBoxPatientEmail.setSelectedItem(emailSecondHalf);*/
+				comboBoxAppointmentReason.setSelectedItem(model.getValueAt(selectedRowIndex, 4).toString());
 				
 			}
 		});
