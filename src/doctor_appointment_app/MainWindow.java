@@ -165,6 +165,8 @@ public class MainWindow {
 									+ "FROM reasons";
 						data.fillComboBox(connection, querySelect, comboBoxAppointmentReason, "reason");
 						
+						textFieldAppointmentDoctor.setText(comboBoxSelectDoctorTop.getSelectedItem().toString());
+						
 						//PATIENTS TAB: initializing fields...
 						
 						lblViewPatients.setText("<HTML>View patients of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
@@ -186,6 +188,8 @@ public class MainWindow {
 						querySelect = "SELECT email_provider "
 									+ "FROM email_providers";
 						data.fillComboBox(connection, querySelect, comboBoxPatientEmail, "email_provider");
+						
+						textFieldDoctorOfPatient.setText(comboBoxSelectDoctorTop.getSelectedItem().toString());
 						
 						//DOCTORS TAB: initializing fields...
 						
@@ -418,7 +422,7 @@ public class MainWindow {
 					try {
 						Connection connection = data.getConnection();
 						
-						//Check if doctor, patient, date and hour combination is unique.
+						//Check if doctor, date and hour combination is unique.
 						
 						String appointmentDate = appointmentPicker.getJFormattedTextField().getText();
 						appointmentDate = utilities.retrieveFormattedDate(appointmentDate);
@@ -426,9 +430,7 @@ public class MainWindow {
 						String queryAppointmentId = "SELECT appointments.id "
 														+ "FROM appointments "
 															+ "JOIN doctors ON appointments.doctor_id = doctors.id "
-															+ "JOIN patients ON appointments.patient_id = patients.id "
-														+ "WHERE appointments.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()) + " "
-															+ "AND appointments.patient_id = " + idsSelectPatient.get(comboBoxAppointmentPatient.getSelectedIndex()) + " " 
+														+ "WHERE appointments.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()) + " " 
 															+ "AND appointment_date = '" + appointmentDate + "' "
 															+ "AND appointment_hour = '" + comboBoxAppointmentHour.getSelectedItem().toString() + "'";
 						queryAppointmentId = data.getColumnAsString(connection, queryAppointmentId, "appointments.id");
@@ -634,17 +636,7 @@ public class MainWindow {
 		btnClearAppointments.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				comboBoxAppointmentPatient.setSelectedIndex(0);
-				
-				DateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
-				Date currentDate = new Date();
-				String date = dateFormat.format(currentDate);
-				appointmentModel.setDate(Integer.parseInt(date.substring(0, 4)), Integer.parseInt(date.substring(5,6)) - 1, Integer.parseInt(date.substring(7)));
-				appointmentPicker.getJFormattedTextField().setText("");
-				
-				comboBoxAppointmentHour.setSelectedIndex(0);
-				
-				comboBoxAppointmentReason.setSelectedIndex(0);
+				clearFieldsAppointments(appointmentModel, appointmentPicker);
 				
 			}
 		});
@@ -664,8 +656,6 @@ public class MainWindow {
 				
 				DefaultTableModel model = (DefaultTableModel)tableAppointments.getModel();
 				int selectedRowIndex = tableAppointments.getSelectedRow();
-				
-				textFieldAppointmentDoctor.setText(comboBoxSelectDoctorTop.getSelectedItem().toString());
 				
 				comboBoxAppointmentPatient.setSelectedItem(model.getValueAt(selectedRowIndex, 1).toString());
 				
@@ -897,6 +887,12 @@ public class MainWindow {
 						    String[] columnNames = {"First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 							utilities.renameColumns(tablePatients, columnNames);
 							
+						    //Clear data.
+
+						    utilities.clearTable(tableAppointments);
+						    
+						    clearFieldsAppointments(appointmentModel, appointmentPicker);
+							
 						}
 						
 					} catch (Exception exception) {
@@ -979,6 +975,12 @@ public class MainWindow {
 								    String[] columnNames = {"First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 									utilities.renameColumns(tablePatients, columnNames);
 									
+								    //Clear data.
+
+								    utilities.clearTable(tableAppointments);
+								    
+								    clearFieldsAppointments(appointmentModel, appointmentPicker);
+									
 								}
 							
 							} catch (Exception exception) {
@@ -1040,6 +1042,12 @@ public class MainWindow {
 							
 						    String[] columnNames = {"First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 							utilities.renameColumns(tablePatients, columnNames);
+							
+						    //Clear data.
+
+						    utilities.clearTable(tableAppointments);
+						    
+						    clearFieldsAppointments(appointmentModel, appointmentPicker);
 						
 						} catch (Exception exception) {
 							exception.printStackTrace();
@@ -1062,23 +1070,7 @@ public class MainWindow {
 		btnClearPatients.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				textFieldPatientFirstName.setText("");
-				
-				textFieldPatientLastName.setText("");
-				
-				DateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
-				Date currentDate = new Date();
-				String date = dateFormat.format(currentDate);
-				patientDOBModel.setDate(Integer.parseInt(date.substring(0, 4)), Integer.parseInt(date.substring(5,6)) - 1, Integer.parseInt(date.substring(7)));
-				patientDOBPicker.getJFormattedTextField().setText("");
-				
-				comboBoxPatientGender.setSelectedIndex(0);
-				
-				formattedTextFieldPatientPhone.setText("");
-				
-				textFieldPatientEmail.setText("");
-				
-				comboBoxPatientEmail.setSelectedIndex(0);
+				clearFieldsPatients(patientDOBModel, patientDOBPicker);
 				
 			}
 		});
@@ -1098,8 +1090,6 @@ public class MainWindow {
 				
 				DefaultTableModel model = (DefaultTableModel)tablePatients.getModel();
 				int selectedRowIndex = tablePatients.getSelectedRow();
-				
-				textFieldDoctorOfPatient.setText(comboBoxSelectDoctorTop.getSelectedItem().toString());
 				
 				textFieldPatientFirstName.setText(model.getValueAt(selectedRowIndex, 1).toString());
 				
@@ -1281,36 +1271,45 @@ public class MainWindow {
 			}
 		}
 		
-		//Update "lblViewPatients", "lblViewAppointments" and "comboBoxAppointmentPatient", comboBoxAppointmentPatient.
+		//Update fields dependent on "comboBoxSelectDoctorTop".
 		
 		comboBoxSelectDoctorTop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-					lblViewPatients.setText("<HTML>View patients of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
+				if(comboBoxSelectDoctorTop.getSelectedItem() != null) {
+					
+					//Update labels "lblViewPatients", "lblViewAppointments". 
+					
 					lblViewAppointments.setText("<HTML>View appointments of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
+					lblViewPatients.setText("<HTML>View patients of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
 					
-					//Fill "comboBoxAppointmentPatient", comboBoxAppointmentPatient.
+					//Update textFields "textFieldAppointmentDoctor", "textFieldDoctorOfPatient".
 					
-					{
-						DataModule data = new DataModule();
+					textFieldAppointmentDoctor.setText(comboBoxSelectDoctorTop.getSelectedItem().toString());
+					textFieldDoctorOfPatient.setText(comboBoxSelectDoctorTop.getSelectedItem().toString());
 					
-						try {
-							Connection connection = data.getConnection();
-						
-							comboBoxAppointmentPatient.removeAllItems();
-							String querySelect = "SELECT CONCAT(patients.first_name, ' ', patients.last_name) AS patient_full_name, patients.id "
-												+ "FROM patients "
-													+ "JOIN doctors ON patients.doctor_id = doctors.id "
-												+ "WHERE patients.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex());
+					//Update comboBox "comboBoxAppointmentPatient".
+					
+					DataModule data = new DataModule();
+					
+					try {
+						Connection connection = data.getConnection();
 							
-							idsSelectPatient.clear();
-							data.fillList(connection, querySelect, idsSelectPatient, "patients.id");
-							data.fillComboBox(connection, querySelect, comboBoxAppointmentPatient, "patient_full_name");
-						
-						} catch (Exception exception) {
-							exception.printStackTrace();
-						}
+						comboBoxAppointmentPatient.removeAllItems();
+						String querySelect = "SELECT CONCAT(patients.first_name, ' ', patients.last_name) AS patient_full_name, patients.id "
+											+ "FROM patients "
+												+ "JOIN doctors ON patients.doctor_id = doctors.id "
+											+ "WHERE patients.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex());
+								
+						idsSelectPatient.clear();
+						data.fillList(connection, querySelect, idsSelectPatient, "patients.id");
+						data.fillComboBox(connection, querySelect, comboBoxAppointmentPatient, "patient_full_name");
+							
+					} catch (Exception exception) {
+						exception.printStackTrace();
 					}
+				    
+				}
 				
 			}
 		});
@@ -1390,17 +1389,36 @@ public class MainWindow {
 						    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 							utilities.renameColumns(tableDoctors, columnNames);
 							
-							//Refresh "comboBoxSelectDoctorTop".
+							//Refresh "comboBoxSelectDoctorTop", "idsSelectDoctorTop".
 							
-							comboBoxSelectDoctorTop.removeAllItems();
 							String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
 												+ "FROM doctors";
-							data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
 							
-							//Get id's to populate "tablePatients" and "tableAppointments".
-
 							idsSelectDoctorTop.clear();
 							data.fillList(connection, querySelect, idsSelectDoctorTop, "id");
+							
+							comboBoxSelectDoctorTop.removeAllItems();
+							data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
+							
+							//Refresh "comboBoxAppointmentPatient", "idsSelectPatient".
+							
+							comboBoxAppointmentPatient.removeAllItems();
+							querySelect = "SELECT CONCAT(patients.first_name, ' ', patients.last_name) AS patient_full_name, patients.id "
+												+ "FROM patients "
+													+ "JOIN doctors ON patients.doctor_id = doctors.id "
+												+ "WHERE patients.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex());
+									
+							idsSelectPatient.clear();
+							data.fillList(connection, querySelect, idsSelectPatient, "patients.id");
+							data.fillComboBox(connection, querySelect, comboBoxAppointmentPatient, "patient_full_name");
+							
+						    //Clear data.
+							
+						    utilities.clearTable(tablePatients);
+						    utilities.clearTable(tableAppointments);
+						    
+						    clearFieldsPatients(patientDOBModel, patientDOBPicker);
+						    clearFieldsAppointments(appointmentModel, appointmentPicker);
 							
 						}
 						
@@ -1485,17 +1503,24 @@ public class MainWindow {
 								    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 									utilities.renameColumns(tableDoctors, columnNames);
 									
-									//Refresh "comboBoxSelectDoctorTop".
+									//Refresh "comboBoxSelectDoctorTop" & get id's to populate "tablePatients" and "tableAppointments".
 									
-									comboBoxSelectDoctorTop.removeAllItems();
 									String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
 														+ "FROM doctors";
-									data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
 									
-									//Get id's to populate "tablePatients" and "tableAppointments".
-
 									idsSelectDoctorTop.clear();
 									data.fillList(connection, querySelect, idsSelectDoctorTop, "id");
+									
+									comboBoxSelectDoctorTop.removeAllItems();
+									data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
+									
+								    //Clear data.
+									
+								    utilities.clearTable(tablePatients);
+								    utilities.clearTable(tableAppointments);
+								    
+								    clearFieldsPatients(patientDOBModel, patientDOBPicker);
+								    clearFieldsAppointments(appointmentModel, appointmentPicker);
 									
 								}
 							
@@ -1559,17 +1584,24 @@ public class MainWindow {
 						    String[] columnNames = {"Title", "First Name", "Last Name", "Date of Birth", "Gender", "Phone Number", "Email"};
 							utilities.renameColumns(tableDoctors, columnNames);
 							
-							//Refresh "comboBoxSelectDoctorTop".
+							//Refresh "comboBoxSelectDoctorTop" & get id's to populate "tablePatients" and "tableAppointments".
 							
-							comboBoxSelectDoctorTop.removeAllItems();
 							String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
 												+ "FROM doctors";
-							data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
 							
-							//Get id's to populate "tablePatients" and "tableAppointments".
-
 							idsSelectDoctorTop.clear();
 							data.fillList(connection, querySelect, idsSelectDoctorTop, "id");
+							
+							comboBoxSelectDoctorTop.removeAllItems();
+							data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
+							
+						    //Clear data.
+							
+						    utilities.clearTable(tablePatients);
+						    utilities.clearTable(tableAppointments);
+						    
+						    clearFieldsPatients(patientDOBModel, patientDOBPicker);
+						    clearFieldsAppointments(appointmentModel, appointmentPicker);
 						
 						} catch (Exception exception) {
 							exception.printStackTrace();
@@ -1676,4 +1708,43 @@ public class MainWindow {
 		frmMain.getContentPane().add(btnQuit);
 		
 	}
+	
+	public void clearFieldsAppointments(UtilDateModel appointmentModel, JDatePickerImpl appointmentPicker) {
+		
+		comboBoxAppointmentPatient.setSelectedIndex(0);
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
+		Date currentDate = new Date();
+		String date = dateFormat.format(currentDate);
+		appointmentModel.setDate(Integer.parseInt(date.substring(0, 4)), Integer.parseInt(date.substring(5,6)) - 1, Integer.parseInt(date.substring(7)));
+		appointmentPicker.getJFormattedTextField().setText("");
+		
+		comboBoxAppointmentHour.setSelectedIndex(0);
+		
+		comboBoxAppointmentReason.setSelectedIndex(0);
+		
+	}
+	
+	public void clearFieldsPatients(UtilDateModel patientDOBModel, JDatePickerImpl patientDOBPicker) {
+		
+		textFieldPatientFirstName.setText("");
+		
+		textFieldPatientLastName.setText("");
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
+		Date currentDate = new Date();
+		String date = dateFormat.format(currentDate);
+		patientDOBModel.setDate(Integer.parseInt(date.substring(0, 4)), Integer.parseInt(date.substring(5,6)) - 1, Integer.parseInt(date.substring(7)));
+		patientDOBPicker.getJFormattedTextField().setText("");
+		
+		comboBoxPatientGender.setSelectedIndex(0);
+		
+		formattedTextFieldPatientPhone.setText("");
+		
+		textFieldPatientEmail.setText("");
+		
+		comboBoxPatientEmail.setSelectedIndex(0);
+		
+	}
+	
 }

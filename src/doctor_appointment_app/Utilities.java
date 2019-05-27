@@ -8,6 +8,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 public class Utilities {
 
@@ -66,6 +67,15 @@ public class Utilities {
 		}
 		
 		return null;
+	}
+	
+	//Clear a JTable.
+	
+	public void clearTable(JTable table) {
+		
+	    DefaultTableModel model = (DefaultTableModel)table.getModel();
+	    model.setRowCount(0);
+	    
 	}
 	
 }
