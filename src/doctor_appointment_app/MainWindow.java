@@ -67,6 +67,7 @@ public class MainWindow {
 	private JLabel lblViewPatients;
 	JComboBox<String> comboBoxSelectDoctorTop = new JComboBox<>();
 	private List<Integer> idsSelectDoctorTop = new ArrayList<>();
+	JComboBox<String> comboBoxAppointmentPatient = new JComboBox<>();
 	Utilities utilities = new Utilities();
 
 	/**
@@ -111,6 +112,43 @@ public class MainWindow {
 			public void windowClosing(WindowEvent e) {
 				
 				utilities.confirmQuitDialog(frmMain);
+				
+			}
+			
+			//Override "windowOpened" event.
+			
+			@Override
+			public void windowOpened(WindowEvent e) {
+				
+					DataModule data = new DataModule();
+				
+					try {
+						Connection connection = data.getConnection();
+					
+						String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
+											+ "FROM doctors";
+						
+						//Get doctors' id's to populate "tablePatients" and "tableAppointments".
+						data.fillList(connection, querySelect, idsSelectDoctorTop, "id"); 
+						
+						//Fill "comboBoxSelectDoctorTop".
+						data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
+						
+						//Implement labels "lblViewPatients" & "lblViewAppointments".
+						lblViewPatients.setText("<HTML>View patients of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
+						lblViewAppointments.setText("<HTML>View appointments of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
+						
+						//Fill "comboBoxAppointmentPatient".
+						comboBoxAppointmentPatient.removeAllItems();
+						querySelect = "SELECT CONCAT(patients.first_name, ' ', patients.last_name) AS patient_full_name "
+											+ "FROM patients "
+												+ "JOIN doctors ON patients.doctor_id = doctors.id "
+											+ "WHERE patients.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex());
+						data.fillComboBox(connection, querySelect, comboBoxAppointmentPatient, "patient_full_name");
+							
+					} catch (Exception exception) {
+								exception.printStackTrace();
+					}
 				
 			}
 		});
@@ -265,7 +303,6 @@ public class MainWindow {
 		lblAppointmentPatient.setBounds(363, 286, 93, 14);
 		panelAppointments.add(lblAppointmentPatient);
 		
-		JComboBox comboBoxAppointmentPatient = new JComboBox();
 		comboBoxAppointmentPatient.setToolTipText("Select the patient for the appointment");
 		comboBoxAppointmentPatient.setBounds(363, 301, 189, 22);
 		panelAppointments.add(comboBoxAppointmentPatient);
@@ -326,7 +363,44 @@ public class MainWindow {
 		scrollPaneAppointments.setBounds(10, 40, 669, 201);
 		panelAppointments.add(scrollPaneAppointments);
 		
+		//Fill "tableAppointments" with "mouseClicked" event.
+		
 		tableAppointments = new JTable();
+		tableAppointments.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				
+				
+/*				DefaultTableModel model = (DefaultTableModel)tablePatients.getModel();
+				int selectedRowIndex = tablePatients.getSelectedRow();
+				
+				textFieldDoctorOfPatient.setText(comboBoxSelectDoctorTop.getSelectedItem().toString());
+				
+				textFieldPatientFirstName.setText(model.getValueAt(selectedRowIndex, 1).toString());
+				
+				textFieldPatientLastName.setText(model.getValueAt(selectedRowIndex, 2).toString());
+				
+				String dateOfBirth = model.getValueAt(selectedRowIndex, 3).toString();
+				int year = Integer.parseInt(dateOfBirth.substring(6));
+				int month = Integer.parseInt(dateOfBirth.substring(0, 2)) - 1;
+				int day = Integer.parseInt(dateOfBirth.substring(3, 5));
+				patientDOBModel.setDate(year, month, day);
+				patientDOBModel.setSelected(true);
+				
+				comboBoxPatientGender.setSelectedItem(model.getValueAt(selectedRowIndex, 4).toString());
+				
+				String phoneNumber = model.getValueAt(selectedRowIndex, 5).toString().replaceAll("-", "");
+				formattedTextFieldPatientPhone.setText(phoneNumber);
+				
+				String emailFirstHalf = model.getValueAt(selectedRowIndex, 6).toString();
+				textFieldPatientEmail.setText(emailFirstHalf.substring(0, emailFirstHalf.indexOf("@")));
+				
+				String emailSecondHalf = model.getValueAt(selectedRowIndex, 6).toString().substring(emailFirstHalf.indexOf("@"));
+				comboBoxPatientEmail.setSelectedItem(emailSecondHalf);*/
+				
+			}
+		});
 		tableAppointments.setBounds(10, 40, 669, 201);
 		scrollPaneAppointments.setViewportView(tableAppointments);
 		
@@ -454,7 +528,7 @@ public class MainWindow {
 		comboBoxPatientGender.setBounds(363, 394, 189, 22);
 		panelPatients.add(comboBoxPatientGender);
 		
-		//Fill "comboBoxPatientGender" with data from database.
+		//Fill "comboBoxPatientGender".
 		
 		{
 			DataModule data = new DataModule();
@@ -503,7 +577,7 @@ public class MainWindow {
 		comboBoxPatientEmail.setBounds(454, 442, 98, 22);
 		panelPatients.add(comboBoxPatientEmail);
 		
-		//Fill "comboBoxPatientEmail" with data from database.
+		//Fill "comboBoxPatientEmail".
 		
 		{
 			DataModule data = new DataModule();
@@ -899,7 +973,7 @@ public class MainWindow {
 		comboBoxDoctorTitle.setBounds(20, 303, 189, 22);
 		panelDoctors.add(comboBoxDoctorTitle);
 		
-		//Fill "comboBoxDoctorTitle" with data from database.
+		//Fill "comboBoxDoctorTitle".
 		
 		{
 			DataModule data = new DataModule();
@@ -960,7 +1034,7 @@ public class MainWindow {
 		comboBoxDoctorGender.setBounds(363, 394, 189, 22);
 		panelDoctors.add(comboBoxDoctorGender);
 		
-		//Fill "comboBoxDoctorGender" with data from database.
+		//Fill "comboBoxDoctorGender".
 		
 		{
 			DataModule data = new DataModule();
@@ -983,16 +1057,16 @@ public class MainWindow {
 		
 		//Create mask for field "formattedTextFieldDoctorPhone".
 		
-			try {
-				MaskFormatter mask = new MaskFormatter("(###) ###-####");
-				formattedTextFieldDoctorPhone = new JFormattedTextField(mask);
-				formattedTextFieldDoctorPhone.setToolTipText("Enter doctor's phone number");
-				formattedTextFieldDoctorPhone.setBounds(21, 444, 189, 20);
-				panelDoctors.add(formattedTextFieldDoctorPhone);
+		try {
+			MaskFormatter mask = new MaskFormatter("(###) ###-####");
+			formattedTextFieldDoctorPhone = new JFormattedTextField(mask);
+			formattedTextFieldDoctorPhone.setToolTipText("Enter doctor's phone number");
+			formattedTextFieldDoctorPhone.setBounds(21, 444, 189, 20);
+			panelDoctors.add(formattedTextFieldDoctorPhone);
 			
-			} catch (ParseException exception) {
-				exception.printStackTrace();
-			}
+		} catch (ParseException exception) {
+			exception.printStackTrace();
+		}
 		
 		JLabel lblDoctorEmail = new JLabel("Email:");
 		lblDoctorEmail.setBounds(363, 427, 46, 14);
@@ -1009,7 +1083,7 @@ public class MainWindow {
 		comboBoxDoctorEmail.setBounds(454, 442, 98, 22);
 		panelDoctors.add(comboBoxDoctorEmail);
 		
-		//Fill "comboBoxDoctorEmail" with data from database.
+		//Fill "comboBoxDoctorEmail".
 		
 		{
 			DataModule data = new DataModule();
@@ -1026,47 +1100,39 @@ public class MainWindow {
 			}
 		}
 		
-		//Implement labels "lblViewPatients" & "lblViewAppointments".
+		//Update "lblViewPatients", "lblViewAppointments" and "comboBoxAppointmentPatient".
 		
 		comboBoxSelectDoctorTop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if(!(comboBoxSelectDoctorTop.getSelectedItem() == null)) {
 					lblViewPatients.setText("<HTML>View patients of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
 					lblViewAppointments.setText("<HTML>View appointments of Dr. <B>" + comboBoxSelectDoctorTop.getSelectedItem().toString() + "</B>:</HTML>");
 					
-				} else {
-					lblViewPatients.setText("View patients of Dr.");
-					lblViewAppointments.setText("View appointments of Dr.");
+					//Fill "comboBoxAppointmentPatient".
 					
-				}
+					{
+						DataModule data = new DataModule();
+					
+						try {
+							Connection connection = data.getConnection();
+						
+							comboBoxAppointmentPatient.removeAllItems();
+							String querySelect = "SELECT CONCAT(patients.first_name, ' ', patients.last_name) AS patient_full_name "
+												+ "FROM patients "
+													+ "JOIN doctors ON patients.doctor_id = doctors.id "
+												+ "WHERE patients.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex());
+							data.fillComboBox(connection, querySelect, comboBoxAppointmentPatient, "patient_full_name");
+						
+						} catch (Exception exception) {
+							exception.printStackTrace();
+						}
+					}
 				
 			}
 		});
 		comboBoxSelectDoctorTop.setToolTipText("Selection will influence Appointments & Patients tab");
 		comboBoxSelectDoctorTop.setBounds(347, 62, 179, 22);
 		frmMain.getContentPane().add(comboBoxSelectDoctorTop);
-		
-		//Fill "comboBoxSelectDoctorTop" with data from database.
-		
-		{
-			DataModule data = new DataModule();
-		
-			try {
-				Connection connection = data.getConnection();
-			
-				String querySelect = "SELECT CONCAT(first_name, ' ', last_name) AS full_name, id "
-									+ "FROM doctors";
-				data.fillComboBox(connection, querySelect, comboBoxSelectDoctorTop, "full_name");
-				
-				//Get id's to populate "tablePatients" and "tableAppointments".
-
-				data.fillList(connection, querySelect, idsSelectDoctorTop, "id");		
-			
-			} catch (Exception exception) {
-				exception.printStackTrace();
-			}
-		}
 		
 		//Implement button "Add".
 		
