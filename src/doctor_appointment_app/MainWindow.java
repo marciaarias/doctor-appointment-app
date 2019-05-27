@@ -481,7 +481,90 @@ public class MainWindow {
 		btnAddAppointment.setBounds(580, 489, 89, 23);
 		panelAppointments.add(btnAddAppointment);
 		
+		//Implement button "Update".
+		
 		JButton btnUpdateAppointment = new JButton("Update");
+		btnUpdateAppointment.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int selectedRowIndex = tableAppointments.getSelectedRow();
+				
+				//Confirm row update.
+				
+				if(tableAppointments.isRowSelected(selectedRowIndex) == true) {
+				    int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to modify this row?", "Confirm Update", JOptionPane.YES_NO_OPTION);
+				    
+				    if(clickedOption == JOptionPane.YES_OPTION) {
+						DataModule data = new DataModule();
+						DefaultTableModel model = (DefaultTableModel)tableAppointments.getModel();
+						
+							try {
+								Connection connection = data.getConnection();
+								
+								//Check if doctor, patient, date and hour combination is unique.
+								
+								String appointmentDate = appointmentPicker.getJFormattedTextField().getText();
+								appointmentDate = utilities.retrieveFormattedDate(appointmentDate);
+								
+								String queryAppointmentId = "SELECT appointments.id "
+																+ "FROM appointments "
+																	+ "JOIN doctors ON appointments.doctor_id = doctors.id "
+																	+ "JOIN patients ON appointments.patient_id = patients.id "
+																+ "WHERE appointments.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()) + " "
+																	+ "AND appointments.patient_id = " + idsSelectPatient.get(comboBoxAppointmentPatient.getSelectedIndex()) + " " 
+																	+ "AND appointment_date = '" + appointmentDate + "' "
+																	+ "AND appointment_hour = '" + comboBoxAppointmentHour.getSelectedItem().toString() + "' "
+																	+ "AND appointments.id != " + (int)(model.getValueAt(selectedRowIndex, 0));
+								queryAppointmentId = data.getColumnAsString(connection, queryAppointmentId, "appointments.id");
+							    
+								if(queryAppointmentId != null) {
+									JOptionPane.showMessageDialog(null, "Duplicate entry: appointments must be unique.", "Error", JOptionPane.ERROR_MESSAGE);
+									
+								} else {
+									
+									//Execute query.
+									
+									String queryUpdate = "UPDATE appointments SET "
+															+ "appointment_date = '" + appointmentDate + "' , "
+															+ "appointment_hour = '" + comboBoxAppointmentHour.getSelectedItem().toString() + "' , "
+															+ "appointment_reason = '" + comboBoxAppointmentReason.getSelectedItem().toString() + "' , "
+															+ "doctor_id = '" + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()) + "' , "
+															+ "patient_id = '" + idsSelectPatient.get(comboBoxAppointmentPatient.getSelectedIndex())
+														+ "' WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
+								
+									PreparedStatement statement = connection.prepareStatement(queryUpdate);
+								    statement.executeUpdate(queryUpdate);
+								    data.selectData(connection, 
+													"SELECT "
+															+ "appointments.id, "
+															+ "CONCAT(patients.first_name, ' ', patients.last_name) AS patient_full_name, "
+															+ "DATE_FORMAT(appointment_date, '%m-%d-%Y') AS appointment_date, "
+															+ "appointment_hour, "
+															+ "appointment_reason "
+														+ "FROM appointments "
+															+ "JOIN patients ON appointments.patient_id = patients.id "
+															+ "JOIN doctors ON appointments.doctor_id = doctors.id "
+														+ "WHERE appointments.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()),
+													tableAppointments
+		    										);
+							
+							String[] columnNames = {"Patient", "Date", "Hour", "Reason of the appointment"};
+							utilities.renameColumns(tableAppointments, columnNames);
+									
+								}
+							
+							} catch (Exception exception) {
+								exception.printStackTrace();
+							}
+						
+				    }
+				    
+				} else {
+					JOptionPane.showMessageDialog(null, "Please select a row first.", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+				
+			}
+		});
 		btnUpdateAppointment.setToolTipText("Update selected appointment");
 		btnUpdateAppointment.setBounds(481, 489, 89, 23);
 		panelAppointments.add(btnUpdateAppointment);
@@ -796,7 +879,7 @@ public class MainWindow {
 									//Execute query.
 									
 									String queryUpdate = "UPDATE patients SET "
-															+ "first_name = '" + textFieldPatientFirstName.getText()+ "' , "
+															+ "first_name = '" + textFieldPatientFirstName.getText() + "' , "
 															+ "last_name = '" + textFieldPatientLastName.getText() + "' , "
 															+ "date_of_birth = '" + dateOfBirth + "' , "
 															+ "gender = '" + comboBoxPatientGender.getSelectedItem().toString() + "' , "
