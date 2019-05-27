@@ -628,7 +628,26 @@ public class MainWindow {
 		btnDeleteAppointment.setBounds(382, 489, 89, 23);
 		panelAppointments.add(btnDeleteAppointment);
 		
+		//Implement button "Clear" in Appointments Tab".
+		
 		JButton btnClearAppointments = new JButton("Clear");
+		btnClearAppointments.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				comboBoxAppointmentPatient.setSelectedIndex(0);
+				
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
+				Date currentDate = new Date();
+				String date = dateFormat.format(currentDate);
+				appointmentModel.setDate(Integer.parseInt(date.substring(0, 4)), Integer.parseInt(date.substring(5,6)) - 1, Integer.parseInt(date.substring(7)));
+				appointmentPicker.getJFormattedTextField().setText("");
+				
+				comboBoxAppointmentHour.setSelectedIndex(0);
+				
+				comboBoxAppointmentReason.setSelectedIndex(0);
+				
+			}
+		});
 		btnClearAppointments.setBounds(28, 489, 89, 23);
 		panelAppointments.add(btnClearAppointments);
 		
@@ -1037,7 +1056,7 @@ public class MainWindow {
 		btnDeletePatient.setBounds(382, 489, 89, 23);
 		panelPatients.add(btnDeletePatient);
 		
-		//Implement button "Clear".
+		//Implement button "Clear" in Patients Tab.
 		
 		JButton btnClearPatients = new JButton("Clear");
 		btnClearPatients.addActionListener(new ActionListener() {
@@ -1611,7 +1630,7 @@ public class MainWindow {
 		tableDoctors.setBounds(10, 40, 669, 201);
 		scrollPaneDoctors.setViewportView(tableDoctors);
 		
-		//Implement button "Clear".
+		//Implement button "Clear" in Doctors Tab.
 		
 		JButton btnClearDoctors = new JButton("Clear");
 		btnClearDoctors.addActionListener(new ActionListener() {
