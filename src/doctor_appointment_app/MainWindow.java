@@ -191,9 +191,36 @@ public class MainWindow {
 		lblViewAppointments.setBounds(10, 16, 330, 18);
 		panelAppointments.add(lblViewAppointments);
 		
+		//Implement button "Show Appointments".
+		
 		JButton btnShowAppointments = new JButton("Show Appointments");
 		btnShowAppointments.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				DataModule data = new DataModule();
+				
+				try {
+					Connection connection = data.getConnection();
+					
+					String querySelect = "SELECT "
+											+ "appointments.id, "
+											+ "CONCAT(patients.first_name, ' ', patients.last_name) AS patient_full_name, "
+											+ "DATE_FORMAT(appointment_date, '%m-%d-%Y') AS appointment_date, "
+											+ "appointment_hour, "
+											+ "appointment_reason "
+										+ "FROM appointments "
+											+ "JOIN patients ON appointments.patient_id = patients.id "
+											+ "JOIN doctors ON appointments.doctor_id = doctors.id "
+										+ "WHERE appointments.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()); 
+					data.selectData(connection, querySelect, tableAppointments);
+					
+					String[] columnNames = {"Patient", "Date", "Hour", "Reason of the appointment"};
+					utilities.renameColumns(tableAppointments, columnNames);
+					
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+				
 			}
 		});
 		btnShowAppointments.setBounds(552, 10, 127, 23);
