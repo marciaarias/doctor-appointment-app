@@ -9,27 +9,27 @@ This Doctor Appointment Manager app has been developed with passion on Java, uti
 
 Upon running, the app features a Welcome window where the user may login or register in order to use the app.
 
-![alt text](https://github.com/marciaarias/to-do-list-app/blob/master/resources/app_01.jpg)
+![alt text](https://github.com/marciaarias/doctor-appointment-app/blob/master/resources/app_01.jpg)
 
-![alt text](https://github.com/marciaarias/to-do-list-app/blob/master/resources/app_02.jpg)
+![alt text](https://github.com/marciaarias/doctor-appointment-app/blob/master/resources/app_02.jpg)
 
-![alt text](https://github.com/marciaarias/to-do-list-app/blob/master/resources/app_03.jpg)
+![alt text](https://github.com/marciaarias/doctor-appointment-app/blob/master/resources/app_03.jpg)
 
 After login, the user is then directed to the Home window of the app. This window features a logout option (which directs the user to the Welcome screen) and three modules from where the user can manage appointments, patients and doctors.
 
-![alt text](https://github.com/marciaarias/to-do-list-app/blob/master/resources/app_04.jpg)
+![alt text](https://github.com/marciaarias/doctor-appointment-app/blob/master/resources/app_04.jpg)
 
 By selecting a doctor at the top, the user can then navigate to the Appointments Tab and view said doctor's appointments. He can add, update or remove appointments by selecting a row from the table shown.
 
-![alt text](https://github.com/marciaarias/to-do-list-app/blob/master/resources/app_05.jpg)
+![alt text](https://github.com/marciaarias/doctor-appointment-app/blob/master/resources/app_05.jpg)
 
 Next, in the Patients Tab, the user can add, update or remove patients based on the selected doctor.
 
-![alt text](https://github.com/marciaarias/to-do-list-app/blob/master/resources/app_06.jpg)
+![alt text](https://github.com/marciaarias/doctor-appointment-app/blob/master/resources/app_06.jpg)
 
 Lastly, the user may add, update or remove a doctor in the Doctors Tab.
 
-![alt text](https://github.com/marciaarias/to-do-list-app/blob/master/resources/app_07.jpg)
+![alt text](https://github.com/marciaarias/doctor-appointment-app/blob/master/resources/app_07.jpg)
 
 &nbsp;&nbsp;&nbsp;
 
