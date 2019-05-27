@@ -400,7 +400,7 @@ public class MainWindow {
 		comboBoxAppointmentReason.setBounds(20, 398, 189, 22);
 		panelAppointments.add(comboBoxAppointmentReason);
 		
-		//Implement button "Add".
+		//Implement button "Add" in Appointments Tab.
 		
 		JButton btnAddAppointment = new JButton("Add");
 		btnAddAppointment.addActionListener(new ActionListener() {
@@ -481,7 +481,7 @@ public class MainWindow {
 		btnAddAppointment.setBounds(580, 489, 89, 23);
 		panelAppointments.add(btnAddAppointment);
 		
-		//Implement button "Update".
+		//Implement button "Update" in Appointments Tab.
 		
 		JButton btnUpdateAppointment = new JButton("Update");
 		btnUpdateAppointment.addActionListener(new ActionListener() {
@@ -569,7 +569,61 @@ public class MainWindow {
 		btnUpdateAppointment.setBounds(481, 489, 89, 23);
 		panelAppointments.add(btnUpdateAppointment);
 		
+		//Implement button "Delete" in Appointments Tab. 
+		
 		JButton btnDeleteAppointment = new JButton("Delete");
+		btnDeleteAppointment.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int selectedRowIndex = tableAppointments.getSelectedRow();
+				
+				//Confirm row deletion.
+				
+				if(tableAppointments.isRowSelected(selectedRowIndex) == true) {
+				    int clickedOption = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this row?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+				    
+				    if(clickedOption == JOptionPane.YES_OPTION) {	
+						DataModule data = new DataModule();
+						DefaultTableModel model = (DefaultTableModel)tableAppointments.getModel();
+					
+						try {
+							Connection connection = data.getConnection();
+							
+							//Execute query.
+						
+							String queryDelete = "DELETE FROM appointments "
+												+ "WHERE id = " + (int)(model.getValueAt(selectedRowIndex, 0));
+						
+							PreparedStatement statement = connection.prepareStatement(queryDelete);
+						    statement.executeUpdate(queryDelete);
+						    data.selectData(connection, 
+											"SELECT "
+													+ "appointments.id, "
+													+ "CONCAT(patients.first_name, ' ', patients.last_name) AS patient_full_name, "
+													+ "DATE_FORMAT(appointment_date, '%m-%d-%Y') AS appointment_date, "
+													+ "appointment_hour, "
+													+ "appointment_reason "
+												+ "FROM appointments "
+													+ "JOIN patients ON appointments.patient_id = patients.id "
+													+ "JOIN doctors ON appointments.doctor_id = doctors.id "
+												+ "WHERE appointments.doctor_id = " + idsSelectDoctorTop.get(comboBoxSelectDoctorTop.getSelectedIndex()),
+											tableAppointments
+											);
+			
+						    String[] columnNames = {"Patient", "Date", "Hour", "Reason of the appointment"};
+						    utilities.renameColumns(tableAppointments, columnNames);
+						
+						} catch (Exception exception) {
+							exception.printStackTrace();
+						}
+				    }
+				    
+				} else {
+					JOptionPane.showMessageDialog(null, "Please select a row first.", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+				
+			}
+		});
 		btnDeleteAppointment.setToolTipText("Delete selected appointment");
 		btnDeleteAppointment.setBounds(382, 489, 89, 23);
 		panelAppointments.add(btnDeleteAppointment);
@@ -752,7 +806,7 @@ public class MainWindow {
 		comboBoxPatientEmail.setBounds(454, 442, 98, 22);
 		panelPatients.add(comboBoxPatientEmail);
 		
-		//Implement button "Add".
+		//Implement button "Add" in Patients Tab.
 		
 		JButton btnAddPatient = new JButton("Add");
 		btnAddPatient.addActionListener(new ActionListener() {
@@ -837,7 +891,7 @@ public class MainWindow {
 		btnAddPatient.setBounds(580, 489, 89, 23);
 		panelPatients.add(btnAddPatient);
 		
-		//Implement button "Update".
+		//Implement button "Update" in Patients Tab.
 		
 		JButton btnUpdatePatient = new JButton("Update");
 		btnUpdatePatient.addActionListener(new ActionListener() {
@@ -924,7 +978,7 @@ public class MainWindow {
 		btnUpdatePatient.setBounds(481, 489, 89, 23);
 		panelPatients.add(btnUpdatePatient);
 		
-		//Implement button "Delete".
+		//Implement button "Delete" in Patients Tab.
 		
 		JButton btnDeletePatient = new JButton("Delete");
 		btnDeletePatient.addActionListener(new ActionListener() {
@@ -1245,7 +1299,7 @@ public class MainWindow {
 		comboBoxSelectDoctorTop.setBounds(347, 62, 179, 22);
 		frmMain.getContentPane().add(comboBoxSelectDoctorTop);
 		
-		//Implement button "Add".
+		//Implement button "Add" in Doctors Tab.
 		
 		JButton btnAddDoctor = new JButton("Add");
 		btnAddDoctor.addActionListener(new ActionListener() {
@@ -1342,7 +1396,7 @@ public class MainWindow {
 		btnAddDoctor.setBounds(580, 489, 89, 23);
 		panelDoctors.add(btnAddDoctor);
 		
-		//Implement button "Update".
+		//Implement button "Update" in Doctors Tab.
 		
 		JButton btnUpdateDoctor = new JButton("Update");
 		btnUpdateDoctor.addActionListener(new ActionListener() {
@@ -1442,7 +1496,7 @@ public class MainWindow {
 		btnUpdateDoctor.setBounds(481, 489, 89, 23);
 		panelDoctors.add(btnUpdateDoctor);
 		
-		//Implement button "Delete".
+		//Implement button "Delete" in Doctors tab.
 		
 		JButton btnDeleteDoctor = new JButton("Delete");
 		btnDeleteDoctor.addActionListener(new ActionListener() {
